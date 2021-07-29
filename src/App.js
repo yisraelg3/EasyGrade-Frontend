@@ -65,6 +65,12 @@ function App(props) {
       <Route exact path='/students/:id' render={routerProps => {
         return <SecondLevelResource routerProps={routerProps} resourceName='students'/>}}
       />
+      <Route exact path='/teachers/:teacher_id/students/:id' render={routerProps => {
+        return <SecondLevelResource routerProps={routerProps} resourceName='students'/>}}
+      />
+      <Route exact path='/teachers/:teacher_id/klasses/:id' render={routerProps => {
+        return <SecondLevelResource routerProps={routerProps} resourceName='klasses'/>}}
+      />
       <Route exact path='/parents/:id' render={routerProps => {
         return <SecondLevelResource routerProps={routerProps} resourceName='parents'/>}}
       />

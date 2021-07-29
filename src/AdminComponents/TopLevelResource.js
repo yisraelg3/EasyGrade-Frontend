@@ -16,7 +16,8 @@ function TopLevelResource({currentResource, history}) {
             case 'teachers':
                 return item.professional_title
             case 'klasses':
-                return `${item.grade} ${item.subject}`
+                const teacher = state.teachers.find(teacher => teacher.id === item.teacher_id)
+                return `${item.grade} ${item.subject} — ${teacher.professional_title}`
             case 'students':
                 return `${item.first_name} ${item.last_name}`
             case 'parents':
