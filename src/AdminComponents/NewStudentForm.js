@@ -2,13 +2,14 @@ import React from 'react'
 import { Form, Input, Button, Row, Col, DatePicker, Select } from 'antd'
 import moment from 'moment'
 import {useState} from 'react'
-import { withRouter, Link } from 'react-router-dom'
+import { withRouter } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
 import {addStudent} from './AdminSlice'
 
 function NewStudentForm({className, history}) {
 
     const classes = useSelector(state => state.admin.klasses)
+    const token = useSelector(state => state.admin.token)
 
     const classesDisplay =
         classes.length > 0 ? 
@@ -29,7 +30,7 @@ function NewStudentForm({className, history}) {
         fetch(`http://localhost:3000/students`, {
             method: 'POST',
             headers: {"Content-type":"application/json", 
-            "Authorization":`Bearer ${localStorage.token}`},
+            "Authorization":`Bearer ${token}`},
             body: JSON.stringify(formData)
         })
         .then(res => res.json())
@@ -83,7 +84,6 @@ function NewStudentForm({className, history}) {
 
   return (
       <>
-       <Link to='/home'> ↩︎ Back</Link>
       <Form labelCol={{ span: 24, offset: 11 }} wrapperCol= {{ span: 7, offset: 8}} onFinish={handleSubmit}>
             <Form.Item label='Birth Date'>
                 <DatePicker name='birth_date' id='birth_date' value={formData.birth_date} onChange={dateChange} format={customFormat}/>

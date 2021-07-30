@@ -1,7 +1,7 @@
 import React from 'react'
-import { Form, Input, Button, Row, Col, Divider } from 'antd'
+import { Form, Input, Button, Divider } from 'antd'
 import {useState} from 'react'
-import { withRouter, Link } from 'react-router-dom'
+import { withRouter } from 'react-router-dom'
 import { useDispatch } from 'react-redux'
 import { login, addTeacher } from '../AdminSlice'
 
@@ -55,7 +55,7 @@ function SignUpForm({className, history}) {
 
   return (
     <>
-        {localStorage.token ?  <Link to='/home'> ↩︎ Back</Link> : className==='admins' ? <Link to='/'>Back to login</Link> : <h1>Add {className}</h1>}
+        {localStorage.token ?  '' : <h1>Add {className}</h1>}
         <Form labelCol={{ span: 24, offset: 11 }} wrapperCol= {{ span: 7, offset: 8}} onFinish={handleSubmit}>
             <Form.Item label='Username' >
                 <Input name='username' id='username' value = {formData.username} placeholder='Username' onChange={onChange} />

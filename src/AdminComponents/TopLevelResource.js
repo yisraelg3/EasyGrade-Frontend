@@ -1,7 +1,7 @@
 import React from 'react'
 import { Button, List } from 'antd';
 import { useSelector, useDispatch } from 'react-redux'
-import { withRouter, Link } from 'react-router-dom'
+import { withRouter } from 'react-router-dom'
 import { deleteTeacher, deleteClass, deleteStudent } from './AdminSlice'
 
 function TopLevelResource({currentResource, history}) {
@@ -72,13 +72,43 @@ function TopLevelResource({currentResource, history}) {
         history.push(`/edit/${currentResource}/${id}`)
     }
 
+    const actions = (item) => {
+        switch (currentResource) {
+            case 'teachers': return ([
+                <Button data-id={item.id} onClick={() => history.push(`/teachers/${item.id}`)} key="more">More...</Button>,
+                <Button data-id={item.id} onClick={handleEdit} key="edit">edit</Button>,
+                <Button data-id={item.id} onClick={handleDelete} key="delete">delete</Button>
+            ])
+            case 'students':
+                return ([
+                    <Button data-id={item.id} onClick={()=> history.push(`/students/${item.id}/report_card`)} key="report_card">Report Card</Button>,
+                    <Button data-id={item.id} onClick={()=> history.push(`/students/${item.id}/classes`)} key="classes">Subjects</Button>,
+                    <Button data-id={item.id} onClick={handleEdit} key="edit">edit</Button>,
+                    <Button data-id={item.id} onClick={handleDelete} key="delete">delete</Button>
+                ])
+            case 'klasses':
+                return ([
+                    <Button data-id={item.id} onClick={()=> history.push(`/classes/${item.id}/report_card`)} key="report_card">Report Card</Button>,
+                    <Button data-id={item.id} onClick={handleEdit} key="edit">edit</Button>,
+                    <Button data-id={item.id} onClick={handleDelete} key="delete">delete</Button>
+                ])
+            case 'parents':
+                return ([
+                <Button data-id={item.id} onClick={handleEdit} key="edit">edit</Button>,
+                <Button data-id={item.id} onClick={handleDelete} key="delete">delete</Button>
+                ])
+                default:
+                    return ''
+        }
+    }
+
   return (
     <>
         <List dataSource={state[currentResource]} size='large' rowKey={item => item.id} renderItem={item => { 
             if (item.professional_title !== "No teacher") {
             return (
-                <List.Item id={item.id} name={item.id} actions={[<Button data-id={item.id} onClick={handleEdit} key="edit">edit</Button>, <Button data-id={item.id} onClick={handleDelete} key="delete">delete</Button>]}>
-                    <Link to={`${currentResource}/${item.id}`}>{mapCurrentArray(item)}</Link>
+                <List.Item id={item.id} name={item.id} actions={actions(item)}>
+                    {mapCurrentArray(item)}
                 </List.Item>
             )}
         }}/> 

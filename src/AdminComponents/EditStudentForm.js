@@ -3,7 +3,7 @@ import { Form, Input, Button, Select, Row, Col, DatePicker, List } from 'antd'
 import { useState, useEffect } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import { updateStudent } from './AdminSlice'
-import { Link, withRouter } from 'react-router-dom'
+import { withRouter } from 'react-router-dom'
 import moment from 'moment'
 
 function EditStudentForm({routerProps, history}) {
@@ -112,7 +112,6 @@ function EditStudentForm({routerProps, history}) {
 
   return (
       <>
-      <Link to='/home'> ↩︎ Back</Link>
       {/* <h1>{student.professional_title}</h1> */}
       <Form labelCol={{ span: 24, offset: 11 }} wrapperCol= {{ span: 7, offset: 8}} onFinish={handleSubmit}>
             <Form.Item label='Birth Date'>
@@ -144,7 +143,7 @@ function EditStudentForm({routerProps, history}) {
         </Form>
         <List header= 'Current Classes:' dataSource={formData.currentClasses} size='small' rowKey={item => item} renderItem={currentClass => { 
         const klass = classes.find(klass => klass.id === currentClass)
-        console.log(klass)
+        
             return (
                 <List.Item id={klass.id} name={klass.id} actions={[<Button data-id={klass.id} onClick={handleDelete} key="delete">delete</Button>]}>
                     {`${klass.grade} ${klass.subject}`}

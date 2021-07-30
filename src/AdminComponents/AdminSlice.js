@@ -74,22 +74,35 @@ export function deleteStudent (id) {
     })
 }
 
-const sortKlass = (array) => {
+export function updateGradeCategoriesByClass (gradeCategories) {
+    return({
+        type: "UPDATE_GRADE_CATEGORIES_BY_CLASS",
+        payload: gradeCategories
+    })
+}
+
+export function updateGradeCategoriesByStudent (gradeCategories) {
+    return({
+        type: "UPDATE_GRADE_CATEGORIES_BY_STUDENT",
+        payload: gradeCategories
+    })
+}
+
+export function sortKlass(array) {
     const sorted_array = array.sort(function (a, b) {
-        console.log(a.grade < b.grade)
         if (a.grade < b.grade) {
             return -1;
-          }
-          if (a.grade > b.grade) {
+        } else { 
             return 1;
-          }
-        })
+        }
+    })
     return sorted_array
 }
 
 const initialState = {
     id: 0,
     username: '',
+    password: '',
     professional_title: '',
     teachers: [],
     parents: [],
@@ -107,6 +120,7 @@ function reducer (state = initialState, action) {
                 ...state,
                 id: user.id,
                 username: user.username,
+                password: user.password,
                 professional_title: user.name || '',
                 teachers: user.teachers || [],
                 parents: user.parents || [],
@@ -201,6 +215,34 @@ function reducer (state = initialState, action) {
                 ...state,
                 students: newStudentArray
             }
+        case "UPDATE_GRADE_CATEGORIES_BY_CLASS":
+            const klass = state.klasses.find(klass => klass.id === action.payload.class_id)
+            const classgGCToUpdate = state.grade_categories.filter(gc => gc.klass_id === klass.id).map(gc => gc.id)
+            const newClassGCArray = state.grade_categories.map(gc => {
+                if (classgGCToUpdate.includes(gc.id)) {
+                    return action.payload.gradeCategoriesArray.find(gradeC => gradeC.id === gc.id)
+                } else {
+                    return gc
+                }
+            })
+            return {
+                ...state,
+                grade_categories: newClassGCArray
+            }
+            case "UPDATE_GRADE_CATEGORIES_BY_STUDENT":
+                const student = state.students.find(student => student.id === action.payload.student_id)
+                const studentGCToUpdate = state.grade_categories.filter(gc => gc.student_id === student.id).map(gc => gc.id)
+                const newStudentGCArray = state.grade_categories.map(gc => {
+                    if (studentGCToUpdate.includes(gc.id)) {
+                        return action.payload.gradeCategoriesArray.find(gradeC => gradeC.id === gc.id)
+                    } else {
+                        return gc
+                    }
+                })
+                return {
+                    ...state,
+                    grade_categories: newStudentGCArray
+                }
         default:
             return state
     }

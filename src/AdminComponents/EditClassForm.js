@@ -3,7 +3,7 @@ import { Form, Input, Button, Select, List } from 'antd'
 import { useState, useEffect } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import { updateClass } from './AdminSlice'
-import { Link, withRouter } from 'react-router-dom'
+import { withRouter } from 'react-router-dom'
 
 function EditClassForm({routerProps, history}) {
 
@@ -110,7 +110,6 @@ function EditClassForm({routerProps, history}) {
 // console.log("currentStudents:", formData.currentStudents)
   return (
       <>
-      <Link to='/home'> ↩︎ Back</Link>
       <h1>{klass.professional_title}</h1>
       <Form labelCol={{ span: 24, offset: 11 }} wrapperCol= {{ span: 7, offset: 8}} onFinish={handleSubmit}>
         <Form.Item label='Subject' >

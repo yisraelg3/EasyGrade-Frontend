@@ -3,7 +3,7 @@ import { Form, Input, Button } from 'antd'
 import { useState, useEffect } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import { updateTeacher } from './AdminSlice'
-import { Link, withRouter } from 'react-router-dom'
+import { withRouter } from 'react-router-dom'
 
 function EditTeacherForm({routerProps, history}) {
 
@@ -15,7 +15,7 @@ function EditTeacherForm({routerProps, history}) {
 
     const teacher = state.teachers.find(teacher => teacher.id === parseInt(id))
     || {username: '',
-    // password: '',
+    password: '',
     picture_url: '',
     title: '',
     first_name: '',
@@ -24,13 +24,13 @@ function EditTeacherForm({routerProps, history}) {
     const [formData, setFormData] = useState({})
     useEffect(() => { setFormData({
         username: teacher.username,
-        // password: resource.password,
+        password: teacher.password,
         picture_url: teacher.picture_url,
         title: teacher.title,
         first_name: teacher.first_name,
         last_name: teacher.last_name
-      })},[teacher.first_name, teacher.last_name, teacher.picture_url, teacher.title, teacher.username])
-
+      })},[teacher.first_name, teacher.last_name, teacher.picture_url, teacher.title, teacher.username, teacher.password])
+      console.log(formData)
       const handleChange = (e) => {
         //   console.log(e.target.value)
         setFormData({
@@ -62,15 +62,14 @@ function EditTeacherForm({routerProps, history}) {
                
   return (
       <>
-      <Link to='/home'> ↩︎ Back</Link>
       <h1>{teacher.professional_title}</h1>
     <Form labelCol={{ span: 24, offset: 11 }} wrapperCol= {{ span: 7, offset: 8}} onFinish={handleSubmit}> 
         <Form.Item label='Username' >
             <Input name='username' id='username' value={formData.username} placeholder='Username' onChange={handleChange} />
         </Form.Item>
-        {/* <Form.Item label='Password'>
+        <Form.Item label='Password'>
             <Input.Password name='password' id='password' value = {formData.password} placeholder='Password' onChange={handleChange} />
-        </Form.Item > */}
+        </Form.Item >
         <Form.Item label='Title' >
             <Input name='title' id='title' value={formData.title} placeholder='Title' onChange={handleChange} />
         </Form.Item>

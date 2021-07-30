@@ -1,15 +1,21 @@
 import React from 'react'
-import { useSelector } from 'react-redux'
-import { List, Menu } from 'antd';
-import { withRouter, Link } from 'react-router-dom'
+import { List, Menu, Button } from 'antd';
+import { withRouter } from 'react-router-dom'
 import {useState} from 'react'
+import { useSelector, useDispatch } from 'react-redux'
+import { deleteTeacher, deleteClass, deleteStudent } from './AdminSlice'
 
 function SecondLevelResource({resourceName, routerProps, history }) {
-    console.log(resourceName)
+    // console.log(resourceName)
+    
     const state = useSelector(state => state.admin)
     const {id} = routerProps.match.params
-    const {teacher_id} = routerProps.match.params
-    const [current, setCurrent] = useState('klasses')
+    // const {teacher_id} = routerProps.match.params
+    const [current, setCurrent] = useState('students')
+
+    const token = useSelector(state => state.admin.token)    
+
+    const dispatch = useDispatch()
 
     const listForTitle = () => {
         if (resourceName === 'teachers') {
@@ -19,17 +25,89 @@ function SecondLevelResource({resourceName, routerProps, history }) {
         }
     }
     const resourceTitle = listForTitle().find(resource => resource.id === parseInt(routerProps.match.params.id))
-    console.log(resourceTitle)
+    // console.log(resourceTitle)
     const mapCurrentArray = (item) => {
         switch (current) {
             case 'klasses':
-                console.log(item)
-                const teacher = state.teachers.find(teacher => teacher.id === item.teacher_id)
+                // console.log(item)
                 return `${item.grade} ${item.subject}`
             case 'students':
                 return `${item.first_name} ${item.last_name}`
             default:
                 return ''
+        }
+    }
+
+    const handleEdit = (e) => {
+        const id = parseInt(e.currentTarget.dataset.id)
+        history.push(`/edit/${current}/${id}`)
+    }
+
+    const handleDelete = (e) => {
+        // console.log(parseInt(e.currentTarget.dataset.id))
+        const id = parseInt(e.currentTarget.dataset.id)
+        if (resourceName === 'teachers' && state.klasses.find(klass => klass.teacher_id === id)) {
+            if (!window.confirm("This teacher is still assigned to a class. "+
+            "If deleted the class will be \nunassigned and will have no teacher, continue?")) {
+                return
+            }
+        }
+        fetch(`http://localhost:3000/${resourceName}/${id}`, {
+            method: 'DELETE',
+            headers: {
+                "Content-type":"application/json",
+                "Authorization" : `"Bearer ${token}"`
+            }
+        })
+        .then(res => res.json())
+        .then(deletedObj => {
+            if (deletedObj.id) {
+                forDispatch(id)
+            } else {
+                alert(deletedObj.errors)
+            }
+        })
+    }
+
+    const forDispatch = (id) => {
+        switch (resourceName) {
+            case 'teachers':
+               return dispatch(deleteTeacher(id))
+            case 'klasses':
+                return dispatch(deleteClass(id))
+            case 'students':
+                return dispatch(deleteStudent(id))
+            default: 
+                return ''
+        }
+    }
+
+
+    const actions = (item) => {
+        if (resourceName === 'teachers') {
+            if (current === 'students') {
+                return ([
+                <Button data-id={item.id} onClick={()=> history.push(`/teachers/${id}/students/${item.id}/report_card`)} key="report_card">Report Card</Button>,
+                // <Button data-id={item.id} onClick={()=> history.push(`/teachers/${id}/students/${item.id}/classes`)} key="classes">Subjects</Button>,
+                // <Button data-id={item.id} onClick={()=> history.push(`/students/${item.id}/report_card`)} key="report_card">Report Card</Button>,
+                // <Button data-id={item.id} onClick={()=> history.push(`/students/${item.id}/classes`)} key="classes">Subjects</Button>,
+                <Button data-id={item.id} onClick={handleEdit} key="edit">edit</Button>,
+                <Button data-id={item.id} onClick={handleDelete} key="delete">delete</Button>
+                ])
+            } else if (current === 'klasses'){
+                return ([
+                    // <Button data-id={item.id} onClick={()=> history.push(`/teachers/${id}/classes/${item.id}/report_card`)} key="report_card">Report Card</Button>,
+                    <Button data-id={item.id} onClick={()=> history.push(`/classes/${item.id}/report_card`)} key="report_card">Report Card</Button>,
+                    <Button data-id={item.id} onClick={handleEdit} key="edit">edit</Button>,
+                    <Button data-id={item.id} onClick={handleDelete} key="delete">delete</Button>
+                ])
+            }
+        } else if (resourceName === 'students') {
+            return ([
+                <Button data-id={item.id} onClick={()=> history.push(`/students/${id}/classes/${item.id}/report_card`)} key="report_card">Report Card</Button>,
+                <Button data-id={item.id} onClick={handleEdit} key="edit">edit</Button>,
+                <Button data-id={item.id} onClick={handleDelete} key="delete">delete</Button>
+            ])
         }
     }
 
@@ -42,6 +120,8 @@ function SecondLevelResource({resourceName, routerProps, history }) {
                 const filteredGradeCategoryStudentIds = state.grade_categories.map(gradeCategory => {
                     if (klassIds.includes(gradeCategory.klass_id)) {
                         return gradeCategory.student_id
+                    } else {
+                        return ''
                     }})
                 const classStudents = state.students.filter(student => filteredGradeCategoryStudentIds.includes(student.id))
                 // console.log(classStudents)
@@ -65,37 +145,35 @@ function SecondLevelResource({resourceName, routerProps, history }) {
     <>
         {resourceName === 'teachers' ?
         <>
-            <Link to='/home'> ↩︎ Back</Link>
             <h1>Teachers</h1>
             {resourceTitle ? <><h2>{resourceTitle.professional_title}</h2> 
             <br/> </>: ''}
             <Menu onClick={handleClick} selectedKeys={[current]} mode="horizontal">
-                <Menu.Item key="klasses">
-                    Classes
-                </Menu.Item>
                 <Menu.Item key="students">
                     Students
+                </Menu.Item>
+                <Menu.Item key="klasses">
+                    Classes
                 </Menu.Item>
             </Menu> 
             
             <List dataSource={chooseResource()[current]} size='large' rowKey={item => item.id} renderItem={item => { 
                 return (
-                    <List.Item id={item.id} name={item.id}>
-                        <Link to={`/teachers/${id}/${current}/${item.id}`}>{mapCurrentArray(item)}</Link>
+                    <List.Item id={item.id} name={item.id} actions={actions(item)}>
+                        {mapCurrentArray(item)}
                     </List.Item>
                 )
             }}/>
         </>
     :
         <>
-            <Link to={`/teachers/${teacher_id}`}> ↩︎ Back</Link>
             {resourceName === 'students' ? <h1>Students</h1> : ''}
             {resourceTitle ? <><h2>{`${resourceTitle.first_name} ${resourceTitle.last_name}`}</h2> 
             <br/></> : ''}
             <List dataSource={chooseResource()} size='large' rowKey={item => item.id} renderItem={item => { 
                 return (
-                    <List.Item id={item.id} name={item.id}>
-                        <Link to={`/students/${id}/classes/${item.id}`}>{`${item.grade} ${item.subject}`}</Link>
+                    <List.Item id={item.id} name={item.id} actions={actions(item)}>
+                        {`${item.grade} ${item.subject}`}
                     </List.Item>
                 )
             }}/>
