@@ -13,6 +13,7 @@ function EditClassForm({routerProps, history}) {
     const students = useSelector(state => state.admin.students) 
     const grade_categories = useSelector(state => state.admin.grade_categories) || []
     const token = useSelector(state => state.admin.token)
+    const year = useSelector(state => state.admin.year)
     // console.log(students)
     const dispatch = useDispatch()
 
@@ -20,12 +21,13 @@ function EditClassForm({routerProps, history}) {
     {subject: '' , grade: '', locked: false, teacher_id: "", gradeCategories: '', students: []}
 
     const teacher = teachers.find(teacher => teacher.id === klass.teacher_id) || {id: "No teacher"}
-
-    const class_students = grade_categories.filter(grade_category => grade_category.klass_id === klass.id) 
+    // debugger
+    const class_students = grade_categories.filter(grade_category => grade_category.klass_id === klass.id && grade_category.year === year)
+    console.log(class_students) 
     const class_students_ids = class_students.map(class_student => class_student.student_id)
-    // console.log("class_students_ids:", class_students_ids)
+    console.log("class_students_ids:", class_students_ids)
     const [formData, setFormData] = useState({})
-
+    console.log(formData) 
     useEffect(() => {setFormData({
         subject: klass.subject,
         grade: klass.grade,
@@ -34,7 +36,7 @@ function EditClassForm({routerProps, history}) {
         gradeCategories: '',
         addStudents: [],
         currentStudents: [...class_students_ids]
-    })},[teacher.id, klass.grade, klass.subject])
+    })},[teacher.id, klass.grade, klass.subject, year])
 
       const handleChange = (e) => {
         //   console.log(e.target.value)
@@ -52,7 +54,7 @@ function EditClassForm({routerProps, history}) {
                 "Content-type":"application/json",
                 "Authorization" : `"Bearer ${token}"`
             },
-            body: JSON.stringify({subject, grade, locked, teacher_id, gradeCategories, currentStudents})
+            body: JSON.stringify({subject, grade, locked, teacher_id, gradeCategories, currentStudents, year: year})
         })
         .then(res => res.json())
         .then(updatedObj => {

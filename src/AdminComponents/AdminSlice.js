@@ -1,3 +1,10 @@
+export function changeYear(year) {
+    return {
+        type: "CHANGE_YEAR",
+        payload: year 
+    }
+}
+
 export function login (user) {
     return ({
         type: "LOGIN",
@@ -108,12 +115,18 @@ const initialState = {
     parents: [],
     students: [],
     klasses: [],
-    grade_categories: []}
+    grade_categories: [],
+    year: 0}
 
 function reducer (state = initialState, action) {
     console.log(action)
     
     switch(action.type) {
+        case "CHANGE_YEAR":
+           return{
+            ...state,
+            year: state.year = action.payload
+           } 
         case "LOGIN":
             const {user, token} = action.payload
             return {

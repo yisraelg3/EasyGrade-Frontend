@@ -1,8 +1,9 @@
-import { Button } from 'antd'
-import React from 'react'
-import { useDispatch } from 'react-redux'
+import { Button, Select } from 'antd'
+import React, {useState, useEffect, useMemo} from 'react'
+import { useDispatch, useSelector } from 'react-redux'
 import { NavLink, withRouter } from 'react-router-dom'
-import { logOut } from '../AdminComponents/AdminSlice'
+import { changeYear, logOut } from '../AdminComponents/AdminSlice'
+import {numericSort} from './StudentsGrades'
 
 function NavBar({history}) {
 
@@ -13,10 +14,30 @@ function NavBar({history}) {
         localStorage.clear()
     }
 
+    const gradeCategories = useSelector(state => state.admin.grade_categories)
+
+    const years = numericSort([...new Set(gradeCategories.map(gc => gc.year))])
+    const yearOptions = years.map(year =>  <Select.Option key={year} value={year}>{year}</Select.Option>)
+    
+    const [year, setYear] = useState('')
+    let currentYear = useMemo(() => [],[])
+    currentYear = year>0 ? year : Math.max(...years)
+    
+    useEffect(() => {
+      dispatch(changeYear(year))
+      setYear(currentYear)},
+      [currentYear, dispatch, year]
+    )
+   
+    const handleChange = (e) => {
+      setYear(e)
+    }
+
   return (
       <div>
-    <Button onClick={()=>history.goBack()}> ↩︎ Back</Button>
-    <NavLink to="/home" activeStyle={{ fontWeight: "bold", color: "blue", position: 'absolute', top: '0%', left: '50%' }}>Home</NavLink>
+    {history.location.pathname === '/home' ? ''  : <><Button onClick={()=>history.goBack()}> ↩︎ Back</Button>
+    <NavLink to="/home" activeStyle={{ fontWeight: "bold", color: "blue", position: 'absolute', top: '0%', left: '50%' }}>Home</NavLink></>}
+    <Select value={year} onChange={handleChange}>{yearOptions}</Select>
     <NavLink to="/"><Button onClick={handleClick}>Log out</Button></NavLink>
     </div>
   )

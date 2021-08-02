@@ -1,3 +1,12 @@
-span.ant-typography.belongsTo {
-    color: blue
+span.ant-typography.belongsTo, .belongsTo {
+    color: blue;
+    font-weight: 700
+}
+
+.grade-page {
+    /* position: fixed;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%); */
+    margin: auto;  display: table; width: 75%    
 }

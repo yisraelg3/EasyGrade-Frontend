@@ -18,44 +18,75 @@ function StudentsGrades({routerProps, history}) {
   const teacher_id = parseInt(routerProps.match.params.teacher_id)
   const class_id = parseInt(routerProps.match.params.class_id)
   const token = useSelector(state => state.admin.token)
+  const year = useSelector(state => state.admin.year)
 
+  const teacher = useSelector(state => state.admin.teachers).find(teacher => teacher_id === teacher.id)
+  const teacherName = teacher ? teacher.professional_title : ''
   const gradeCategories = useSelector(state => state.admin.grade_categories)
   const teachersKlassIds = useSelector(state => state.admin.klasses).filter(klass => klass.teacher_id === teacher_id).map(klass => klass.id)
-  console.log(teachersKlassIds)
-  const studentGradesForIndClass = gradeCategories.filter(grade => grade.student_id === student_id && grade.klass_id === class_id)
-  const studentGradesForAllClasses = gradeCategories.filter(grade => grade.student_id === student_id)
+  // console.log(teachersKlassIds)
+  const studentGradesForIndClass = gradeCategories.filter(grade => grade.student_id === student_id && grade.klass_id === class_id && grade.year === year)
+  const studentGradesForAllClasses = gradeCategories.filter(grade => grade.student_id === student_id && grade.year === year)
   const name = studentGradesForAllClasses[0] ? studentGradesForAllClasses[0].name : ''
   
-  const Semesters = numericSort([...new Set(studentGradesForAllClasses.map(grade => grade.semester))])
-  // const years = yearsAndSemesters.map(set => set.year)
-  // const semesters = yearsAndSemesters.map(set => set.semester)
-// console.log(Semesters)
+  let Semesters = numericSort([...new Set(studentGradesForAllClasses.map(grade => grade.semester))]) || []
 
-const dataForIndClass = studentGradesForIndClass.map(grade => { 
-  return {subject: grade.subject, grade: grade.student_grade, key: grade.id, style:{color:'red'}}});
+  const [locked, setLocked] = useState(false)
+  const [edit, setEdit] = useState(false)
+  const [newSemester, setNewSemester] = useState([])
+
+// const dataForIndClass = studentGradesForIndClass.map(grade => { 
+//   return {subject: grade.subject, grade: grade.student_grade, key: grade.id}
+// })
 
 const dataForAllClasses = studentGradesForAllClasses.map(grade => { 
-  return {subject: grade.subject, grade: grade.student_grade, key: grade.id, class_id: grade.klass_id}});
-console.log(dataForAllClasses)
-const data = class_id ? dataForIndClass : dataForAllClasses
+  return {subject: grade.subject, grade: grade.student_grade, key: grade.id, class_id: grade.klass_id, semester: grade.semester}});
 
-let newState = useMemo(()=> {return {}},[])
-    data.forEach(element => Object.assign(newState, {[element.key]: element.grade}))
-    
-    // console.log(newState)
+// const data = class_id ? dataForIndClass : dataForAllClasses
 
-    const [edit, setEdit] = useState(false)
-    const [locked, setLocked] = useState(false)
-    const [formData, setFormData] = useState({})
+    const dataFunc = (addSemester=newSemester) => {
+      // console.log(classGrades)
+    let cellData = []
+    studentGradesForAllClasses.forEach((grade) => { 
+      // console.log('celldata:', cellData)
+      const existingClass = cellData.find(celld => celld.subject === grade.subject) 
+      let cell 
+      if (addSemester.length > 0 && Semesters[Semesters.length-1] !== addSemester[addSemester.length-1]) {
+        Semesters = Semesters.concat(addSemester)
+      }
+      // console.log(Semesters) 
+      Semesters.forEach((semester, idx) =>  {
+        cell = cell || existingClass 
+        const klass = cell || {subject: grade.subject, key: grade.klass_id}
+        // console.log(student)
+        if (grade.semester === semester) {
+          cell = Object.assign({...klass}, {[semester]: grade.student_grade})
+          // console.log(cell)
+        } else if (grade.semester !== semester && !klass[semester]){
+          cell = Object.assign({...klass}, {[semester]: ''})
+          // console.log(cell)
+          // debugger
+        } 
+        // console.log(cell)
+      })
+      // console.log('sems:',sems)
+      cellData = cellData.filter(cd => cd.subject !== cell.subject)
+      cellData = [...cellData, cell]
+    })
+    return cellData
+  }
+
+    const data = dataFunc()
+    const [formData, setFormData] = useState(data)
 
     const handleFinish = () =>{
-      const submitData = () => {
-        let submitArray = []
-        for (let [key, value] of Object.entries(formData)) {
-          submitArray.push({id: key, student_grade: value})
-        }
-        return submitArray
-      }
+      // const submitData = () => {
+      //   let submitArray = []
+      //   for (let [key, value] of Object.entries(formData)) {
+      //     submitArray.push({id: key, student_grade: value})
+      //   }
+      //   return submitArray
+      // }
       // console.log(submitData())
       fetch('http://localhost:3000/grade_categories/update_student_grades',{
         method: 'PATCH',
@@ -63,7 +94,7 @@ let newState = useMemo(()=> {return {}},[])
           "Content-type":"application/json",
           "Authorization": `"Bearer ${token}"`
         },
-        body: JSON.stringify({id: student_id, data: submitData(), locked})
+        body: JSON.stringify({student_id: student_id, data:[...formData], locked, year: year})
       })
       .then(res => res.json())
       .then(gradeCategoriesArray => {
@@ -77,13 +108,12 @@ let newState = useMemo(()=> {return {}},[])
       })
     }
 
-    useEffect(() => {
-      setFormData(newState)
-    },[newState])
-
     // console.log(formData)
 
     const handleEdit = () => {
+      if (!edit) {
+        setFormData(data)
+      }
       const toggle = !edit
       setEdit(toggle)
     }
@@ -93,11 +123,26 @@ let newState = useMemo(()=> {return {}},[])
       setLocked(toggle)
     }
 
-    const handleChange = (e,r) => {
-      setFormData({
-        ...formData,
-        [r.key]: e.target.value
-      })
+    const handleChange = (e,r,s,i) => {
+      const newRecord = Object.assign({...r}, {[s]: e.target.value})
+      const formDataCopy = [...formData]
+      formDataCopy[i] = newRecord
+      setFormData(formDataCopy)
+    }
+
+    const addSemester = () => {
+      const currentNewSemesters = [...newSemester]
+      const lastSemester = currentNewSemesters.length > 0 ? currentNewSemesters[currentNewSemesters.length-1] : Semesters[Semesters.length-1]
+      currentNewSemesters.push(lastSemester+1 || 1)
+      console.log(currentNewSemesters)
+      setNewSemester(currentNewSemesters)
+    }
+
+    const removeSemester = () => {
+      const currentNewSemesters = [...newSemester]
+      currentNewSemesters.pop()
+      console.log(currentNewSemesters)
+      setNewSemester(currentNewSemesters)
     }
 
 const columns = [
@@ -108,34 +153,35 @@ const columns = [
     fixed: 'left',
     width: 100,
     render: (text, record, index) => {
-    return <Typography.Text className={teachersKlassIds.includes(record.class_id) ? 'belongsTo' : ''}>{text}</Typography.Text>}
+    return <Typography.Text className={teachersKlassIds.includes(record.key) ? 'belongsTo' : ''}>{text}</Typography.Text>}
   },
   ...Semesters.map(semester => { return ({
-    title: `Semester ${semester}`,
-    children: [
-      {
-        title: 'Grade',
-        dataIndex: 'grade',
-        key: 'grade',
-        render: (text, record, index) => {
-          return edit ? <Input size='small' onChange={(e) => handleChange(e, record)} value={formData[record.key]}/> 
-          : <Typography.Text className={teachersKlassIds.includes(record.class_id) ? 'belongsTo' : ''}>{text}</Typography.Text>}
-      }
-    ]
+          title: `Semester ${semester}`,
+          dataIndex: `${semester}`,
+          key: `${semester}`,
+          render: (text, record, index) => {
+            console.log(record)
+            return edit ? <Input size='small' onChange={(event) => handleChange(event, record, semester, index)} value={formData[index][semester]}/> 
+            : <Typography.Text className={teachersKlassIds.includes(record.key) ? 'belongsTo' : ''}>{text}</Typography.Text>
+        }
   })})
 ]
 
 // console.log(columns)
 
   return (
-    <>
-    <h1>{name}</h1>
-    <Form onFinish={handleFinish}>
+    <div className='grade-page'>
+    {teacher_id ? <><h1>{teacherName}</h1>
+    <h2>{name}</h2>
+    <h4 className='belongsTo'>Subjects in this color indicate that {teacherName} teaches that subject.</h4></> 
+    :  <h1>{name}</h1>}
+    <Button onClick={addSemester}>Add new Semester</Button> {newSemester.length > 0 ? <Button onClick={removeSemester}>Remove new Semester</Button> : ''}
+    <Form onFinish={handleFinish} >
       <Table bordered columns={columns} dataSource={data} pagination={false} />
       { edit ? <> <Button type='primary' htmlType= 'submit'>Save</Button> <Button danger onClick={handleEdit}>Cancel</Button> </>: <Button type='primary' onClick={handleEdit}>Edit</Button>}
       </Form>
       <Switch checkedChildren="Unlocked" unCheckedChildren="Locked" checked={locked} onChange={handleLock}/>
-  </>
+  </div>
   )
 }
 export default withRouter(StudentsGrades)

@@ -13,6 +13,7 @@ function EditStudentForm({routerProps, history}) {
     const students = useSelector(state => state.admin.students) 
     const grade_categories = useSelector(state => state.admin.grade_categories) || []
     const token = useSelector(state => state.admin.token)
+    const year = useSelector(state => state.admin.year)
     // console.log(students)
     const dispatch = useDispatch()
 
@@ -21,9 +22,9 @@ function EditStudentForm({routerProps, history}) {
 
     // const teacher = teachers.find(teacher => teacher.id === klass.teacher_id) || {id: "No teacher"}
 
-    const studentClasses = grade_categories.filter(grade_category => grade_category.student_id === student.id) 
-    const studentClassIds = studentClasses.map(studentClass => studentClass.klass_id)
-    // console.log("class_students_ids:", class_students_ids)
+    const studentClasses = grade_categories.filter(grade_category => grade_category.student_id === student.id && grade_category.year === year) 
+    const studentClassIds = [...new Set(studentClasses.map(studentClass => studentClass.klass_id))]
+    console.log("class_students_ids:", studentClassIds)
     const [formData, setFormData] = useState({})
     useEffect(() => {setFormData({
         first_name: student.first_name,
@@ -33,7 +34,7 @@ function EditStudentForm({routerProps, history}) {
         picture_url: student.picture_url,
         addClasses: [],
         currentClasses: studentClassIds
-    })},[student.birth_date, student.first_name, student.last_name, student.parent_id, student.picture_url])
+    })},[student.birth_date, student.first_name, student.last_name, student.parent_id, student.picture_url, year])
 
       const classesDisplay =
         classes.length > 0 ? 
@@ -55,7 +56,7 @@ function EditStudentForm({routerProps, history}) {
                 "Content-type":"application/json",
                 "Authorization" : `"Bearer ${token}"`
             },
-            body: JSON.stringify({first_name, last_name, birth_date, parent_id, picture_url, currentClasses})
+            body: JSON.stringify({first_name, last_name, birth_date, parent_id, picture_url, currentClasses, year: year})
         })
         .then(res => res.json())
         .then(updatedObj => {

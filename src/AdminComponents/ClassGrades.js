@@ -2,7 +2,7 @@ import React from 'react'
 import { Table, Input, Button, Form,Typography, Switch } from 'antd';
 import { useSelector, useDispatch } from 'react-redux'
 import {numericSort} from './StudentsGrades'
-import { useState, useEffect, useMemo } from 'react'
+import { useState} from 'react'
 import { updateGradeCategoriesByClass } from './AdminSlice'
 
 export default function ClassGrades({routerProps}) {
@@ -14,45 +14,75 @@ export default function ClassGrades({routerProps}) {
   const classes = useSelector(state => state.admin.klasses)
   const token = useSelector(state => state.admin.token)
   const klass = classes.find(klass => klass.id === class_id)
+  const year = useSelector(state => state.admin.year)
 
   const gradeCategories = useSelector(state => state.admin.grade_categories)
-  const classGrades = gradeCategories.filter(grade => grade.klass_id === class_id)
+  const classGrades = gradeCategories.filter(grade => grade.klass_id === class_id && grade.year === year) || []
 
   const name = klass ? `${klass.grade} ${klass.subject}`  : ''
  
-  const Semesters = numericSort([...new Set(classGrades.map(grade => grade.semester))])
+  let Semesters = numericSort([...new Set(classGrades.map(grade => grade.semester))]) || []
 
   const [locked, setLocked] = useState(false)
   const [edit, setEdit] = useState(false)
-  const [formData, setFormData] = useState({})
-
-  const data = classGrades.map(grade => { 
-    return {student: grade.name, grade: grade.student_grade, key: grade.id}});
-
-    let newState = useMemo(()=> {return {}},[])
-    data.forEach(element => Object.assign(newState, {[element.key]: element.grade}))
-    
-    // console.log(newState)
-
-    const handleFinish = () =>{
-      const submitData = () => {
-        let submitArray = []
-        for (let [key, value] of Object.entries(formData)) {
-          submitArray.push({id: key, student_grade: value})
-        }
-        return submitArray
+  const [newSemester, setNewSemester] = useState([])
+  
+  const dataFunc = (addSemester=newSemester) => {
+      // console.log(classGrades)
+    let cellData = []
+    classGrades.forEach((grade) => { 
+      // console.log('celldata:', cellData)
+      const existingStudent = cellData.find(celld => celld.student === grade.name) 
+      let cell 
+      if (addSemester.length > 0 && Semesters[Semesters.length-1] !== addSemester[addSemester.length-1]) {
+        Semesters = Semesters.concat(addSemester)
       }
-      console.log(submitData())
+      // console.log(Semesters) 
+      Semesters.forEach((semester, idx) =>  {
+        cell = cell || existingStudent 
+        const student = cell || {student: grade.name, key: grade.student_id}
+        // console.log(student)
+        if (grade.semester === semester) {
+          cell = Object.assign({...student}, {[semester]: grade.student_grade})
+          // console.log(cell)
+        } else if (grade.semester !== semester && !student[semester]){
+          cell = Object.assign({...student}, {[semester]: ''})
+          // console.log(cell)
+          // debugger
+        } 
+        // console.log(cell)
+      })
+      // console.log('sems:',sems)
+      cellData = cellData.filter(cd => cd.student !== cell.student)
+      cellData = [...cellData, cell]
+    })
+    return cellData
+  }
+
+    const data = dataFunc()
+    const [formData, setFormData] = useState(data)
+    
+    // console.log(formData)
+    const handleFinish = () =>{
+      // const submitData = () => {
+      //   let submitArray = []
+      //   for (let [key, value] of Object.entries(formData)) {
+      //     submitArray.push({student_id: student_id, student_grade: value})
+      //   }
+      //   return submitArray
+      // }
+      // console.log(submitData())
       fetch('http://localhost:3000/grade_categories/update_class_grades',{
         method: 'PATCH',
         headers: {
           "Content-type":"application/json",
           "Authorization": `"Bearer ${token}"`
         },
-        body: JSON.stringify({id: class_id, data: submitData(), locked})
+        body: JSON.stringify({class_id: class_id, data:[...formData], locked, year: year})
       })
       .then(res => res.json())
       .then(gradeCategoriesArray => {
+        // console.log(gradeCategoriesArray)
         if (!gradeCategoriesArray.errors) {
           dispatch(updateGradeCategoriesByClass({class_id, gradeCategoriesArray}))
           handleEdit()
@@ -62,13 +92,12 @@ export default function ClassGrades({routerProps}) {
       })
     }
 
-    useEffect(() => {
-      setFormData(newState)
-    },[newState])
-
     // console.log(formData)
 
     const handleEdit = () => {
+      if (!edit) {
+        setFormData(data)
+      }
       const toggle = !edit
       setEdit(toggle)
     }
@@ -78,11 +107,26 @@ export default function ClassGrades({routerProps}) {
       setLocked(toggle)
     }
 
-    const handleChange = (e,r) => {
-      setFormData({
-        ...formData,
-        [r.key]: e.target.value
-      })
+    const handleChange = (e,r,s,i) => {
+      const newRecord = Object.assign({...r}, {[s]: e.target.value})
+      const formDataCopy = [...formData]
+      formDataCopy[i] = newRecord
+      setFormData(formDataCopy)
+    }
+
+    const addSemester = () => {
+      const currentNewSemesters = [...newSemester]
+      const lastSemester = currentNewSemesters.length > 0 ? currentNewSemesters[currentNewSemesters.length-1] : Semesters[Semesters.length-1]
+      currentNewSemesters.push(lastSemester+1 || 1)
+      console.log(currentNewSemesters)
+      setNewSemester(currentNewSemesters)
+    }
+
+    const removeSemester = () => {
+      const currentNewSemesters = [...newSemester]
+      currentNewSemesters.pop()
+      console.log(currentNewSemesters)
+      setNewSemester(currentNewSemesters)
     }
 
   const columns = [
@@ -95,22 +139,19 @@ export default function ClassGrades({routerProps}) {
     },
     ...Semesters.map(semester => { return ({
       title: `Semester ${semester}`,
-      children: [
-        {
-          title: 'Grade',
-          dataIndex: 'grade',
-          key: 'grade',
+          dataIndex: `${semester}`,
+          key: `${semester}`,
           render: (text, record, index) => {
-            // console.log(text, record, index)
-            return edit ? <Input size='small' onChange={(e) => handleChange(e, record)} value={formData[record.key]}/> 
-            : <Typography.Text >{text}</Typography.Text>}
-        }
-      ]
+              return edit ? <Input size='small' onChange={(event) => handleChange(event, record, semester, index)} value={formData[index][semester]}/> 
+              : <Typography.Text>{text}</Typography.Text>
+            }
     })})
   ]
+
   return (
-    <div>
+    <div className='grade-page'>
       <h1>{name}</h1>
+      <Button onClick={addSemester}>Add new Semester</Button> {newSemester.length > 0 ? <Button onClick={removeSemester}>Remove new Semester</Button> : ''}
       <Form onFinish={handleFinish}>
       <Table bordered columns={columns} dataSource={data} pagination={false} />
       { edit ? <> <Button type='primary' htmlType= 'submit'>Save</Button> <Button danger onClick={handleEdit}>Cancel</Button> </>: <Button type='primary' onClick={handleEdit}>Edit</Button>}
