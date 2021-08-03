@@ -64,6 +64,8 @@ export default function ClassGrades({routerProps}) {
     
     // console.log(formData)
     const handleFinish = () =>{
+
+      // console.log(formData)
       // const submitData = () => {
       //   let submitArray = []
       //   for (let [key, value] of Object.entries(formData)) {
@@ -71,7 +73,6 @@ export default function ClassGrades({routerProps}) {
       //   }
       //   return submitArray
       // }
-      // console.log(submitData())
       fetch('http://localhost:3000/grade_categories/update_class_grades',{
         method: 'PATCH',
         headers: {
@@ -82,7 +83,7 @@ export default function ClassGrades({routerProps}) {
       })
       .then(res => res.json())
       .then(gradeCategoriesArray => {
-        // console.log(gradeCategoriesArray)
+        console.log(gradeCategoriesArray)
         if (!gradeCategoriesArray.errors) {
           dispatch(updateGradeCategoriesByClass({class_id, gradeCategoriesArray}))
           handleEdit()
@@ -108,24 +109,27 @@ export default function ClassGrades({routerProps}) {
     }
 
     const handleChange = (e,r,s,i) => {
-      const newRecord = Object.assign({...r}, {[s]: e.target.value})
+      // console.log(e, r, s, i)
+      // debugger
+      // const newRecord = Object.assign({...r}, {[s]: e.target.value})
       const formDataCopy = [...formData]
-      formDataCopy[i] = newRecord
+      // const newRecord = Object.assign({...formDataCopy[i]}, {[s]: e.target.value})
+      formDataCopy[i][s] = e.target.value 
       setFormData(formDataCopy)
     }
-
+    
     const addSemester = () => {
       const currentNewSemesters = [...newSemester]
       const lastSemester = currentNewSemesters.length > 0 ? currentNewSemesters[currentNewSemesters.length-1] : Semesters[Semesters.length-1]
       currentNewSemesters.push(lastSemester+1 || 1)
-      console.log(currentNewSemesters)
+      // console.log(currentNewSemesters)
       setNewSemester(currentNewSemesters)
     }
 
     const removeSemester = () => {
       const currentNewSemesters = [...newSemester]
       currentNewSemesters.pop()
-      console.log(currentNewSemesters)
+      // console.log(currentNewSemesters)
       setNewSemester(currentNewSemesters)
     }
 
@@ -142,6 +146,7 @@ export default function ClassGrades({routerProps}) {
           dataIndex: `${semester}`,
           key: `${semester}`,
           render: (text, record, index) => {
+            // console.log(text)
               return edit ? <Input size='small' onChange={(event) => handleChange(event, record, semester, index)} value={formData[index][semester]}/> 
               : <Typography.Text>{text}</Typography.Text>
             }
@@ -153,7 +158,7 @@ export default function ClassGrades({routerProps}) {
       <h1>{name}</h1>
       <Button onClick={addSemester}>Add new Semester</Button> {newSemester.length > 0 ? <Button onClick={removeSemester}>Remove new Semester</Button> : ''}
       <Form onFinish={handleFinish}>
-      <Table bordered columns={columns} dataSource={data} pagination={false} />
+      <Table bordered columns={columns} dataSource={formData.length > 0 && data.length > 0 ? formData : data} pagination={false} />
       { edit ? <> <Button type='primary' htmlType= 'submit'>Save</Button> <Button danger onClick={handleEdit}>Cancel</Button> </>: <Button type='primary' onClick={handleEdit}>Edit</Button>}
       </Form>
       <Switch checkedChildren="Unlocked" unCheckedChildren="Locked" checked={locked} onChange={handleLock}/>

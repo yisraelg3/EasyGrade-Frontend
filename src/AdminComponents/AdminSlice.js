@@ -229,6 +229,7 @@ function reducer (state = initialState, action) {
                 students: newStudentArray
             }
         case "UPDATE_GRADE_CATEGORIES_BY_CLASS":
+            // debugger
             const klass = state.klasses.find(klass => klass.id === action.payload.class_id)
             const classgGCToUpdate = state.grade_categories.filter(gc => gc.klass_id === klass.id).map(gc => gc.id)
             const newClassGCArray = state.grade_categories.map(gc => {

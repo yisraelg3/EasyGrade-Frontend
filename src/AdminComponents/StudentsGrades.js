@@ -2,7 +2,7 @@ import React from 'react'
 import { Table, Input, Typography, Form, Button, Switch } from 'antd';
 import { useSelector,useDispatch } from 'react-redux'
 import { withRouter} from 'react-router-dom'
-import { useState, useEffect, useMemo } from 'react'
+import { useState} from 'react'
 import { updateGradeCategoriesByStudent } from './AdminSlice'
 
 export function numericSort (array) {
@@ -16,7 +16,7 @@ function StudentsGrades({routerProps, history}) {
 
   const student_id = parseInt(routerProps.match.params.student_id)
   const teacher_id = parseInt(routerProps.match.params.teacher_id)
-  const class_id = parseInt(routerProps.match.params.class_id)
+  // const class_id = parseInt(routerProps.match.params.class_id)
   const token = useSelector(state => state.admin.token)
   const year = useSelector(state => state.admin.year)
 
@@ -25,7 +25,7 @@ function StudentsGrades({routerProps, history}) {
   const gradeCategories = useSelector(state => state.admin.grade_categories)
   const teachersKlassIds = useSelector(state => state.admin.klasses).filter(klass => klass.teacher_id === teacher_id).map(klass => klass.id)
   // console.log(teachersKlassIds)
-  const studentGradesForIndClass = gradeCategories.filter(grade => grade.student_id === student_id && grade.klass_id === class_id && grade.year === year)
+  // const studentGradesForIndClass = gradeCategories.filter(grade => grade.student_id === student_id && grade.klass_id === class_id && grade.year === year)
   const studentGradesForAllClasses = gradeCategories.filter(grade => grade.student_id === student_id && grade.year === year)
   const name = studentGradesForAllClasses[0] ? studentGradesForAllClasses[0].name : ''
   
@@ -39,8 +39,8 @@ function StudentsGrades({routerProps, history}) {
 //   return {subject: grade.subject, grade: grade.student_grade, key: grade.id}
 // })
 
-const dataForAllClasses = studentGradesForAllClasses.map(grade => { 
-  return {subject: grade.subject, grade: grade.student_grade, key: grade.id, class_id: grade.klass_id, semester: grade.semester}});
+// const dataForAllClasses = studentGradesForAllClasses.map(grade => { 
+//   return {subject: grade.subject, grade: grade.student_grade, key: grade.id, class_id: grade.klass_id, semester: grade.semester}});
 
 // const data = class_id ? dataForIndClass : dataForAllClasses
 
@@ -76,7 +76,7 @@ const dataForAllClasses = studentGradesForAllClasses.map(grade => {
     return cellData
   }
 
-    const data = dataFunc()
+    let data = dataFunc()
     const [formData, setFormData] = useState(data)
 
     const handleFinish = () =>{
@@ -112,6 +112,7 @@ const dataForAllClasses = studentGradesForAllClasses.map(grade => {
 
     const handleEdit = () => {
       if (!edit) {
+        data = dataFunc()
         setFormData(data)
       }
       const toggle = !edit
@@ -124,9 +125,11 @@ const dataForAllClasses = studentGradesForAllClasses.map(grade => {
     }
 
     const handleChange = (e,r,s,i) => {
-      const newRecord = Object.assign({...r}, {[s]: e.target.value})
+      // console.log(e,r,s,i)
+      // debugger
+      // const newRecord = Object.assign({...r}, {[s]: e.target.value})
       const formDataCopy = [...formData]
-      formDataCopy[i] = newRecord
+      formDataCopy[i][s] = e.target.value 
       setFormData(formDataCopy)
     }
 
@@ -134,14 +137,14 @@ const dataForAllClasses = studentGradesForAllClasses.map(grade => {
       const currentNewSemesters = [...newSemester]
       const lastSemester = currentNewSemesters.length > 0 ? currentNewSemesters[currentNewSemesters.length-1] : Semesters[Semesters.length-1]
       currentNewSemesters.push(lastSemester+1 || 1)
-      console.log(currentNewSemesters)
+      // console.log(currentNewSemesters)
       setNewSemester(currentNewSemesters)
     }
 
     const removeSemester = () => {
       const currentNewSemesters = [...newSemester]
       currentNewSemesters.pop()
-      console.log(currentNewSemesters)
+      // console.log(currentNewSemesters)
       setNewSemester(currentNewSemesters)
     }
 
@@ -157,10 +160,10 @@ const columns = [
   },
   ...Semesters.map(semester => { return ({
           title: `Semester ${semester}`,
-          dataIndex: `${semester}`,
-          key: `${semester}`,
+          dataIndex: semester,
+          key: semester,
           render: (text, record, index) => {
-            console.log(record)
+            // debugger
             return edit ? <Input size='small' onChange={(event) => handleChange(event, record, semester, index)} value={formData[index][semester]}/> 
             : <Typography.Text className={teachersKlassIds.includes(record.key) ? 'belongsTo' : ''}>{text}</Typography.Text>
         }
@@ -177,7 +180,7 @@ const columns = [
     :  <h1>{name}</h1>}
     <Button onClick={addSemester}>Add new Semester</Button> {newSemester.length > 0 ? <Button onClick={removeSemester}>Remove new Semester</Button> : ''}
     <Form onFinish={handleFinish} >
-      <Table bordered columns={columns} dataSource={data} pagination={false} />
+      <Table bordered columns={columns} dataSource={formData.length > 0 && data.length > 0 ? formData : data} pagination={false} />
       { edit ? <> <Button type='primary' htmlType= 'submit'>Save</Button> <Button danger onClick={handleEdit}>Cancel</Button> </>: <Button type='primary' onClick={handleEdit}>Edit</Button>}
       </Form>
       <Switch checkedChildren="Unlocked" unCheckedChildren="Locked" checked={locked} onChange={handleLock}/>
