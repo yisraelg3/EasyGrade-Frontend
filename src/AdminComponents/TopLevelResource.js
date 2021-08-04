@@ -2,12 +2,13 @@ import React from 'react'
 import { Button, List } from 'antd';
 import { useSelector, useDispatch } from 'react-redux'
 import { withRouter } from 'react-router-dom'
-import { deleteTeacher, deleteClass, deleteStudent } from './AdminSlice'
+import { deleteTeacher, deleteClass, deleteStudent, deleteParent } from './AdminSlice'
 
 function TopLevelResource({currentResource, history}) {
     
     const state = useSelector(state => state.admin)
-    const token = useSelector(state => state.admin.token)    
+    const token = useSelector(state => state.admin.token) 
+    const accountType = useSelector(state => state.admin.accountType)    
 
     const dispatch = useDispatch()
 
@@ -17,7 +18,7 @@ function TopLevelResource({currentResource, history}) {
                 return item.professional_title
             case 'klasses':
                 const teacher = state.teachers.find(teacher => teacher.id === item.teacher_id)
-                return `${item.grade} ${item.subject} — ${teacher.professional_title}`
+                return `${item.grade} ${item.subject} ${accountType === 'Admin' ?`- ${teacher.professional_title}` : ''}`
             case 'students':
                 return `${item.first_name} ${item.last_name}`
             case 'parents':
@@ -35,6 +36,9 @@ function TopLevelResource({currentResource, history}) {
                 return dispatch(deleteClass(id))
             case 'students':
                 return dispatch(deleteStudent(id))
+            case 'parents':
+                const defaultParent = state.parents.find(parent => parent.username === 'parent')
+                return dispatch(deleteParent({id: id, defaultParent}))
             default: 
                 return ''
         }
@@ -82,18 +86,19 @@ function TopLevelResource({currentResource, history}) {
             case 'students':
                 return ([
                     <Button data-id={item.id} onClick={()=> history.push(`/students/${item.id}/report_card`)} key="report_card">Report Card</Button>,
-                    <Button data-id={item.id} onClick={()=> history.push(`/students/${item.id}/classes`)} key="classes">Subjects</Button>,
-                    <Button data-id={item.id} onClick={handleEdit} key="edit">edit</Button>,
-                    <Button data-id={item.id} onClick={handleDelete} key="delete">delete</Button>
+                    // <Button data-id={item.id} onClick={()=> history.push(`/students/${item.id}/classes`)} key="classes">Subjects</Button>,
+                    accountType === 'Admin' ? <><Button data-id={item.id} onClick={handleEdit} key="edit">edit</Button>,
+                    <Button data-id={item.id} onClick={handleDelete} key="delete">delete</Button> </>: ''
                 ])
             case 'klasses':
                 return ([
                     <Button data-id={item.id} onClick={()=> history.push(`/classes/${item.id}/report_card`)} key="report_card">Report Card</Button>,
-                    <Button data-id={item.id} onClick={handleEdit} key="edit">edit</Button>,
-                    <Button data-id={item.id} onClick={handleDelete} key="delete">delete</Button>
+                    accountType === 'Admin' ? <><Button data-id={item.id} onClick={handleEdit} key="edit">edit</Button>,
+                    <Button data-id={item.id} onClick={handleDelete} key="delete">delete</Button> </>: ''
                 ])
             case 'parents':
                 return ([
+                <Button data-id={item.id} onClick={()=> history.push(`/parents/${item.id}`)} key="students">Students</Button>,
                 <Button data-id={item.id} onClick={handleEdit} key="edit">edit</Button>,
                 <Button data-id={item.id} onClick={handleDelete} key="delete">delete</Button>
                 ])
@@ -105,7 +110,7 @@ function TopLevelResource({currentResource, history}) {
   return (
     <>
         <List dataSource={state[currentResource]} size='large' rowKey={item => item.id} renderItem={item => { 
-            if (item.professional_title !== "No teacher") {
+            if (item.professional_title !== "No teacher" && item.username !== 'parent') {
             return (
                 <List.Item id={item.id} name={item.id} actions={actions(item)}>
                     {mapCurrentArray(item)}

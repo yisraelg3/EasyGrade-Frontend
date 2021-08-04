@@ -11,31 +11,40 @@ import EditStudentForm from './AdminComponents/EditStudentForm'
 import Home from './AdminComponents/Home'
 import { useEffect } from 'react'
 import { login } from './AdminComponents/AdminSlice'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import NavBar from './AdminComponents/NavBar'
 import StudentsGrades from './AdminComponents/StudentsGrades'
 import ClassGrades from './AdminComponents/ClassGrades'
+import ParentTeacherHome from './TeacherComponents/ParentTeacherHome'
+import { parentLogin } from './TeacherComponents/ParentSlice'
+import NewParentForm from './AdminComponents/NewParentForm'
+import EditParentForm from './AdminComponents/EditParentForm'
+
 
 function App(props) {
 
   const dispatch = useDispatch()
-  
+  const accountType = useSelector(state => state.admin.accountType)
 
   useEffect(() => {
     if (localStorage.token) {
-    fetch('http://localhost:3000/me', {
+    fetch(`http://localhost:3000/me`, {
       headers: {"authorization": `"Bearer ${localStorage.token}"`}
     })
     .then(res => res.json())
     .then(res => {
       if (res.user) {
-        dispatch(login(res))
+        if (res.user.account_type === 'Parent') {
+          dispatch(parentLogin(res))
+        } else {
+          dispatch(login(res))
+        }
       } else {
         alert("Please Login")
       }
     })
   }
-  },[dispatch])
+  },[dispatch, accountType])
 
   return (
     <>
@@ -56,8 +65,11 @@ function App(props) {
       <Route exact path='/add_class'>
         <NewClassForm className='klasses'/>
       </Route>
+      <Route exact path='/add_parent'>
+        <NewParentForm className='parents'/>
+      </Route>
       <Route path='/home'>
-        <Home/>
+        {accountType === 'Admin' ? <Home/> : <ParentTeacherHome/>}
       </Route>
       <Route exact path='/teachers/:id' render={routerProps => {
         return <SecondLevelResource routerProps={routerProps} resourceName='teachers'/>}}
@@ -74,6 +86,7 @@ function App(props) {
       <Route exact path='/edit/teachers/:id' render={routerProps => <EditTeacherForm routerProps={routerProps} />}/>
       <Route exact path='/edit/klasses/:id' render={routerProps => <EditClassForm routerProps={routerProps} />}/>
       <Route exact path='/edit/students/:id' render={routerProps => <EditStudentForm routerProps={routerProps} />}/>
+      <Route exact path='/edit/parents/:id' render={routerProps => <EditParentForm routerProps={routerProps} />}/>
 
       <Route exact path='/teachers/:teacher_id/students/:student_id/report_card' render={routerProps => <StudentsGrades routerProps={routerProps} />}/>
       <Route exact path='/students/:student_id/classes/:class_id/report_card' render={routerProps => <StudentsGrades routerProps={routerProps} />}/>

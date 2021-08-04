@@ -21,12 +21,15 @@ function SecondLevelResource({resourceName, routerProps, history }) {
     const listForTitle = () => {
         if (resourceName === 'teachers') {
             return state.teachers
-        } else {
+        } else if (resourceName === 'students') {
             return state.students
+        } else if (resourceName === 'parents') {
+            return state.parents
         }
     }
+
     const resourceTitle = listForTitle().find(resource => resource.id === parseInt(routerProps.match.params.id))
-    // console.log(resourceTitle)
+    
     const mapCurrentArray = (item) => {
         switch (current) {
             case 'klasses':
@@ -41,7 +44,11 @@ function SecondLevelResource({resourceName, routerProps, history }) {
 
     const handleEdit = (e) => {
         const id = parseInt(e.currentTarget.dataset.id)
-        history.push(`/edit/${current}/${id}`)
+        if (resourceName === 'teachers') {
+            history.push(`/edit/${current}/${id}`)
+        } else if (resourceName === 'parents') {
+            history.push(`/edit/parents/${id}`)
+        }
     }
 
     const handleDelete = (e) => {
@@ -109,6 +116,12 @@ function SecondLevelResource({resourceName, routerProps, history }) {
                 <Button data-id={item.id} onClick={handleEdit} key="edit">edit</Button>,
                 <Button data-id={item.id} onClick={handleDelete} key="delete">delete</Button>
             ])
+        } else if (resourceName === 'parents') {
+            return ([
+                <Button data-id={item.id} onClick={()=> history.push(`/students/${item.id}/report_card`)} key="report_card">Report Card</Button>
+                // <Button data-id={item.id} onClick={handleEdit} key="edit">edit</Button>,
+                // <Button data-id={item.id} onClick={handleDelete} key="delete">delete</Button>
+            ])
         }
     }
 
@@ -140,6 +153,9 @@ function SecondLevelResource({resourceName, routerProps, history }) {
                 const classIds = filteredGradeCategories.map(gradeCategory => gradeCategory.klass_id)
                 const studentsClasses = state.klasses.filter(klass => classIds.includes(klass.id))
                 return studentsClasses
+            case 'parents':
+                const filteredStudents = state.students.filter(student => student.parent_id === parseInt(routerProps.match.params.id))
+                return filteredStudents
             default:
                 return ''
         }
@@ -177,12 +193,13 @@ function SecondLevelResource({resourceName, routerProps, history }) {
     :
         <>
             {resourceName === 'students' ? <h1>Students</h1> : ''}
-            {resourceTitle ? <><h2>{`${resourceTitle.first_name} ${resourceTitle.last_name}`}</h2> 
-            <br/></> : ''}
+            {resourceTitle ? <><h1>Parent: {resourceTitle.username}</h1> 
+            <br/>
+            <h2>Students</h2></> : ''}
             <List dataSource={chooseResource()} size='large' rowKey={item => item.id} renderItem={item => { 
                 return (
                     <List.Item id={item.id} name={item.id} actions={actions(item)}>
-                        {`${item.grade} ${item.subject}`}
+                        {`${item.first_name} ${item.last_name}`}
                     </List.Item>
                 )
             }}/>

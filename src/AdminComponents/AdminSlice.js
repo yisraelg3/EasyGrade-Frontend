@@ -6,10 +6,17 @@ export function changeYear(year) {
 }
 
 export function login (user) {
-    return ({
-        type: "LOGIN",
-        payload: user
-    })
+    if (user.accountType === 'Teacher') {
+        return ({
+            type: "TEACHER_LOGIN",
+            payload: user
+        })
+    } else {
+        return ({
+            type: "LOGIN",
+            payload: user
+        })
+    }
 }
 
 export function logOut () {
@@ -81,6 +88,27 @@ export function deleteStudent (id) {
     })
 }
 
+export function addParent (parent) {
+    return({
+        type: "ADD_PARENT",
+        payload: parent
+    })
+}
+
+export function updateParent (parent) {
+    return({
+        type: "UPDATE_PARENT",
+        payload: parent
+    })
+}
+
+export function deleteParent (parent) {
+    return({
+        type: "DELETE_PARENT",
+        payload: parent
+    })
+}
+
 export function updateGradeCategoriesByClass (gradeCategories) {
     return({
         type: "UPDATE_GRADE_CATEGORIES_BY_CLASS",
@@ -107,6 +135,7 @@ export function sortKlass(array) {
 }
 
 const initialState = {
+    accountType: '',
     id: 0,
     username: '',
     password: '',
@@ -128,9 +157,10 @@ function reducer (state = initialState, action) {
             year: state.year = action.payload
            } 
         case "LOGIN":
-            const {user, token} = action.payload
+            let {user, token} = action.payload
             return {
                 ...state,
+                accountType: user.account_type,
                 id: user.id,
                 username: user.username,
                 password: user.password,
@@ -141,6 +171,19 @@ function reducer (state = initialState, action) {
                 klasses: sortKlass(user.klasses) ||[],
                 grade_categories: user.grade_categories || [],
                 token: token
+            }
+        case "TEACHER_LOGIN":
+            return {
+                ...state,
+                accountType: action.payload.user.account_type,
+                id: action.payload.user.id,
+                username: action.payload.user.username,
+                password: action.payload.user.password,
+                professional_title: action.payload.user.professional_title || '',
+                students: action.payload.user.students || [],
+                klasses: sortKlass(action.payload.user.klasses) ||[],
+                grade_categories: action.payload.grade_categories || [],
+                token: action.payload.token
             }
         case 'LOGOUT':
             return{
@@ -228,10 +271,66 @@ function reducer (state = initialState, action) {
                 ...state,
                 students: newStudentArray
             }
+        case "ADD_PARENT":
+            const studentIds = action.payload.students.map(student => student.id)
+            const newStudentFromParentArray = state.students.map(oldStudent => {
+                if (studentIds.includes(oldStudent.id)) {
+                    return action.payload.students.find(updatedStudent => updatedStudent.id === oldStudent.id)
+                } else {
+                    return oldStudent
+                }
+            })
+            return {
+                ...state,
+                parents: [...state.parents, action.payload.parent],
+                students: newStudentFromParentArray
+            } 
+        case "UPDATE_PARENT":
+            const updatedParentArray = state.parents.map(parent => {
+                if (parent.id === action.payload.parent.id) {
+                    return action.payload.parent
+                } else {
+                    return parent
+                }
+            })
+            const updatedStudentIds = action.payload.students.map(student => student.id)
+            const updatedStudentsFromParentArray = state.students.map(oldStudent => {
+                if (oldStudent.id === action.payload.parent.id && !updatedStudentIds.includes(oldStudent.id)) {
+                    const updatedStudent = {...oldStudent}
+                    updatedStudent.parent_id = action.payload.defaultParent.id
+                    return updatedStudent
+                } else if (updatedStudentIds.includes(oldStudent.id)){
+                    return action.payload.students.find(updatedStudent => updatedStudent.id === oldStudent.id)
+                } else {
+                    return oldStudent
+                }
+            })
+            return {
+                ...state,
+                parents: updatedParentArray,
+                students: updatedStudentsFromParentArray
+            } 
+        case "DELETE_PARENT":
+            // console.log("deleting Student...")
+            const newParentArray = state.parents.filter(parent => parent.id !== action.payload.id)
+            const studentsToUnassign = state.students.map(oldStudent => {
+                if (oldStudent.id === action.payload.id) {
+                    const updatedStudent = {...oldStudent}
+                    updatedStudent.parent_id = action.payload.defaultParent.id
+                    return updatedStudent
+                } else {
+                    return oldStudent
+                }
+            })
+            return {
+                ...state,
+                parents: newParentArray,
+                students: studentsToUnassign
+            }
         case "UPDATE_GRADE_CATEGORIES_BY_CLASS":
             // debugger
-            const klass = state.klasses.find(klass => klass.id === action.payload.class_id)
-            const classgGCToUpdate = state.grade_categories.filter(gc => gc.klass_id === klass.id).map(gc => gc.id)
+            // const klass = state.klasses.find(klass => klass.id === action.payload.class_id)
+            const classgGCToUpdate = state.grade_categories.filter(gc => gc.klass_id === action.payload.class_id).map(gc => gc.id)
             const newClassGCArray = state.grade_categories.map(gc => {
                 if (classgGCToUpdate.includes(gc.id)) {
                     return action.payload.gradeCategoriesArray.find(gradeC => gradeC.id === gc.id)
@@ -244,8 +343,8 @@ function reducer (state = initialState, action) {
                 grade_categories: newClassGCArray
             }
             case "UPDATE_GRADE_CATEGORIES_BY_STUDENT":
-                const student = state.students.find(student => student.id === action.payload.student_id)
-                const studentGCToUpdate = state.grade_categories.filter(gc => gc.student_id === student.id).map(gc => gc.id)
+                // const student = state.students.find(student => student.id === action.payload.student_id)
+                const studentGCToUpdate = state.grade_categories.filter(gc => gc.student_id === action.payload.student_id).map(gc => gc.id)
                 const newStudentGCArray = state.grade_categories.map(gc => {
                     if (studentGCToUpdate.includes(gc.id)) {
                         return action.payload.gradeCategoriesArray.find(gradeC => gradeC.id === gc.id)

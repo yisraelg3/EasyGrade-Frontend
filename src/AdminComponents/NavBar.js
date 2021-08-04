@@ -14,12 +14,13 @@ function NavBar({history}) {
         localStorage.clear()
     }
 
-    const gradeCategories = useSelector(state => state.admin.grade_categories)
+    const state = useSelector(state => state)
+    const gradeCategories = state.admin.accountType ? state.admin.grade_categories : state.parent.grade_categories
 
     const years = numericSort([...new Set(gradeCategories.map(gc => gc.year))])
     const yearOptions = years.map(year =>  <Select.Option key={year} value={year}>{year}</Select.Option>)
     
-    const [year, setYear] = useState('')
+    const [year, setYear] = useState(2020)
     let currentYear = useMemo(() => [],[])
     currentYear = year>0 ? year : Math.max(...years)
     

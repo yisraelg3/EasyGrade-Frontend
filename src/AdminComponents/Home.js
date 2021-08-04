@@ -23,6 +23,7 @@ function Home() {
         <Button type='primary' shape='round'size='medium'><Link to='/add_teacher'>Add Teacher</Link></Button>
         <Button type='primary' shape='round'size='medium'><Link to='/add_class'>Add Class</Link></Button>
         <Button type='primary' shape='round'size='medium'><Link to='/add_student'>Add Student</Link></Button>
+        <Button type='primary' shape='round'size='medium'><Link to='/add_parent'>Add Parent</Link></Button>
       </Space>
       <hr/>
     <Menu onClick={handleClick} selectedKeys={[current]} mode="horizontal">

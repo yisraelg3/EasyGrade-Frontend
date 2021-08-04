@@ -1,5 +1,5 @@
 import React from 'react'
-import { Form, Input, Button, Row, Col, DatePicker, Select } from 'antd'
+import { Form, Input, Button, DatePicker, Select, Divider } from 'antd'
 import moment from 'moment'
 import {useState} from 'react'
 import { withRouter } from 'react-router-dom'
@@ -67,7 +67,7 @@ function NewStudentForm({className, history}) {
     }
 
     const classChange = (e) => {
-        console.log(e)
+        // console.log(e)
         setFormData({
             ...formData,
             currentClasses: e
@@ -85,29 +85,24 @@ function NewStudentForm({className, history}) {
   return (
       <>
       <Form labelCol={{ span: 24, offset: 11 }} wrapperCol= {{ span: 7, offset: 8}} onFinish={handleSubmit}>
-            <Form.Item label='Birth Date'>
-                <DatePicker name='birth_date' id='birth_date' value={formData.birth_date} onChange={dateChange} format={customFormat}/>
+            <Form.Item label='First name' >
+                <Input name='first_name' id='first_name' value = {formData.first_name} placeholder='First Name' onChange={handleChange} />
             </Form.Item>
-            <Form.Item label='Picture URL' >
-                <Input name='picture_url' id='picture_url' value = {formData.picture_url} placeholder='picture_url' onChange={handleChange} />
+            <Form.Item label='Last name' >
+                <Input name='last_name' id='last_name' value = {formData.last_name} placeholder='Last Name' onChange={handleChange} />
             </Form.Item>
+            <Divider/>
             <Form.Item label='Classes' >
                 <Select allowClear mode='multiple' name='classes' id='classes' value={formData.currentClasses} placeholder='Select classes' onChange={classChange}>
                 {options}
                 </Select>
             </Form.Item>
-            <Row justify='center'>
-                <Col span={6}>
-                    <Form.Item label='First name' labelCol={{ span: 5, offset: 0}} wrapperCol= {{ span: 20, offset: 1}}>
-                        <Input name='first_name' id='first_name' value = {formData.first_name} placeholder='First Name' onChange={handleChange} />
-                    </Form.Item>
-                </Col>
-                <Col span={6}>
-                    <Form.Item label='Last name' labelCol={{ span: 5, offset: 2 }} wrapperCol= {{ span: 20, offset: 1}}>
-                        <Input name='last_name' id='last_name' value = {formData.last_name} placeholder='Last Name' onChange={handleChange} />
-                    </Form.Item>
-                </Col>
-            </Row>
+            <Form.Item label='Picture URL' >
+                <Input name='picture_url' id='picture_url' value = {formData.picture_url} placeholder='picture_url' onChange={handleChange} />
+            </Form.Item>
+            <Form.Item label='Birth Date'>
+                <DatePicker name='birth_date' id='birth_date' value={formData.birth_date} onChange={dateChange} format={customFormat}/>
+            </Form.Item>
             <Form.Item wrapperCol={{ offset: 11 }}>
                 <Button type="primary" htmlType='submit'>{className==='admins' ? 'Sign up' : `Add ${className}`}</Button>
             </Form.Item>

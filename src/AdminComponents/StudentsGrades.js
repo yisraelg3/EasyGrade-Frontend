@@ -4,6 +4,8 @@ import { useSelector,useDispatch } from 'react-redux'
 import { withRouter} from 'react-router-dom'
 import { useState} from 'react'
 import { updateGradeCategoriesByStudent } from './AdminSlice'
+import jsPDF from "jspdf";
+import "jspdf-autotable";
 
 export function numericSort (array) {
   return (array.sort(function(a, b) {
@@ -14,22 +16,35 @@ function StudentsGrades({routerProps, history}) {
 // console.log(routerProps)
   const dispatch = useDispatch()
 
-  const student_id = parseInt(routerProps.match.params.student_id)
-  const teacher_id = parseInt(routerProps.match.params.teacher_id)
+  const state = useSelector(state => state)
+  const user = state.parent.accountType !== 'Parent' ? state.admin : state.parent
+  const id = user.id
+  const accountType = user.accountType
+  const professional_title = user.professional_title
   // const class_id = parseInt(routerProps.match.params.class_id)
-  const token = useSelector(state => state.admin.token)
-  const year = useSelector(state => state.admin.year)
+  const token = user.token
+  const year = user.year
+  const gradeCategories = user.grade_categories
 
-  const teacher = useSelector(state => state.admin.teachers).find(teacher => teacher_id === teacher.id)
-  const teacherName = teacher ? teacher.professional_title : ''
-  const gradeCategories = useSelector(state => state.admin.grade_categories)
-  const teachersKlassIds = useSelector(state => state.admin.klasses).filter(klass => klass.teacher_id === teacher_id).map(klass => klass.id)
+  const student_id = parseInt(routerProps.match.params.student_id)
+  const teacher_id = accountType === 'Teacher' ? id : parseInt(routerProps.match.params.teacher_id)
+
+  const teacher = user.teachers ? user.teachers.find(teacher => teacher_id === teacher.id) : ''
+  const teachersKlassIds = user.klasses.filter(klass => klass.teacher_id === teacher_id).map(klass => klass.id)
+
+  const teacherName = accountType === 'Teacher' ? professional_title : teacher ? teacher.professional_title : '' 
+
   // console.log(teachersKlassIds)
   // const studentGradesForIndClass = gradeCategories.filter(grade => grade.student_id === student_id && grade.klass_id === class_id && grade.year === year)
   const studentGradesForAllClasses = gradeCategories.filter(grade => grade.student_id === student_id && grade.year === year)
+
   const name = studentGradesForAllClasses[0] ? studentGradesForAllClasses[0].name : ''
   
+  const years = numericSort([...new Set(gradeCategories.map(gc => gc.year))])
   let Semesters = numericSort([...new Set(studentGradesForAllClasses.map(grade => grade.semester))]) || []
+
+  const lastYear = Math.max(...years)
+  const lastSemester = Math.max(...Semesters)
 
   const [locked, setLocked] = useState(false)
   const [edit, setEdit] = useState(false)
@@ -45,7 +60,6 @@ function StudentsGrades({routerProps, history}) {
 // const data = class_id ? dataForIndClass : dataForAllClasses
 
     const dataFunc = (addSemester=newSemester) => {
-      // console.log(classGrades)
     let cellData = []
     studentGradesForAllClasses.forEach((grade) => { 
       // console.log('celldata:', cellData)
@@ -58,7 +72,7 @@ function StudentsGrades({routerProps, history}) {
       Semesters.forEach((semester, idx) =>  {
         cell = cell || existingClass 
         const klass = cell || {subject: grade.subject, key: grade.klass_id}
-        // console.log(student)
+        // console.log(klass)
         if (grade.semester === semester) {
           cell = Object.assign({...klass}, {[semester]: grade.student_grade})
           // console.log(cell)
@@ -77,9 +91,14 @@ function StudentsGrades({routerProps, history}) {
   }
 
     let data = dataFunc()
+    // console.log(data)
     const [formData, setFormData] = useState(data)
 
     const handleFinish = () =>{
+      let submitData = [...formData]
+      if (accountType === 'Teacher') {
+        submitData = formData.filter(element => teachersKlassIds.includes(element.key))
+      }
       // const submitData = () => {
       //   let submitArray = []
       //   for (let [key, value] of Object.entries(formData)) {
@@ -94,7 +113,7 @@ function StudentsGrades({routerProps, history}) {
           "Content-type":"application/json",
           "Authorization": `"Bearer ${token}"`
         },
-        body: JSON.stringify({student_id: student_id, data:[...formData], locked, year: year})
+        body: JSON.stringify({student_id: student_id, data: submitData, locked, year: year})
       })
       .then(res => res.json())
       .then(gradeCategoriesArray => {
@@ -107,12 +126,11 @@ function StudentsGrades({routerProps, history}) {
         }
       })
     }
-
-    // console.log(formData)
+    // console.log('data:',formData)
+    // console.log('formData:',formData)
 
     const handleEdit = () => {
-      if (!edit) {
-        data = dataFunc()
+      if (formData.length < 1) {
         setFormData(data)
       }
       const toggle = !edit
@@ -163,14 +181,64 @@ const columns = [
           dataIndex: semester,
           key: semester,
           render: (text, record, index) => {
-            // debugger
-            return edit ? <Input size='small' onChange={(event) => handleChange(event, record, semester, index)} value={formData[index][semester]}/> 
-            : <Typography.Text className={teachersKlassIds.includes(record.key) ? 'belongsTo' : ''}>{text}</Typography.Text>
+            if (accountType === 'Admin') {
+              return edit ? <Input size='small' onChange={(event) => handleChange(event, record, semester, index)} value={formData[index][semester]}/> 
+              : <Typography.Text className={teachersKlassIds.includes(record.key) ? 'belongsTo' : ''}>{text}</Typography.Text>
+            } else if (accountType === 'Teacher') {
+              return edit && teachersKlassIds.includes(record.key) && year === lastYear && semester === lastSemester ? <Input size='small' onChange={(event) => handleChange(event, record, semester, index)} value={formData[index][semester]}/> 
+              : <Typography.Text className={teachersKlassIds.includes(record.key) ? 'belongsTo' : ''}>{text}</Typography.Text>
+            } else if (accountType === 'Parent') {
+              return <Typography.Text >{text}</Typography.Text>
+            } 
         }
   })})
 ]
 
-// console.log(columns)
+const exportPDF = (save=true) => {
+  const unit = "pt";
+  const size = "A4"; // Use A1, A2, A3 or A4
+  const orientation = "portrait"; // portrait or landscape
+
+  const marginLeft = 40;
+  const doc = new jsPDF(orientation, unit, size);
+
+  doc.setFontSize(15);
+
+  const title = `Report Card for ${name} - School year ${year}`;
+  const headers = [columns.map(column => column.title)]
+  const tableData = formData.length > 0 && data.length > 0 ? formData : data
+
+ const dataArray = tableData.map(data => {
+   const cell = []
+   cell.push(data.subject)
+   if (data[1] !== undefined) {cell.push(data[1])} 
+   if (data[2] !== undefined) {cell.push(data[2])} 
+   if (data[3] !== undefined) {cell.push(data[3])} 
+   if (data[4] !== undefined) {cell.push(data[4])} 
+   if (data[5] !== undefined) {cell.push(data[5])} 
+   if (data[6] !== undefined) {cell.push(data[6])}
+  //  console.log(cell)
+   return cell
+ })
+ console.log(dataArray)
+  const exportData = dataArray
+
+  let content = {
+    startY: 50,
+    head: headers,
+    body: exportData
+  };
+
+  doc.text(title, marginLeft, 40);
+  doc.autoTable(content);
+  doc.autoTable(content);
+    if (save) {
+      doc.save("report.pdf")
+    } else {
+      doc.output('dataurlnewwindow', {})
+    }
+
+}
 
   return (
     <div className='grade-page'>
@@ -178,12 +246,13 @@ const columns = [
     <h2>{name}</h2>
     <h4 className='belongsTo'>Subjects in this color indicate that {teacherName} teaches that subject.</h4></> 
     :  <h1>{name}</h1>}
-    <Button onClick={addSemester}>Add new Semester</Button> {newSemester.length > 0 ? <Button onClick={removeSemester}>Remove new Semester</Button> : ''}
+    {accountType === 'Admin' ? <><Button onClick={addSemester}>Add new Semester</Button> {newSemester.length > 0 ? <Button onClick={removeSemester}>Remove new Semester</Button> : ''} </>:''}
     <Form onFinish={handleFinish} >
       <Table bordered columns={columns} dataSource={formData.length > 0 && data.length > 0 ? formData : data} pagination={false} />
-      { edit ? <> <Button type='primary' htmlType= 'submit'>Save</Button> <Button danger onClick={handleEdit}>Cancel</Button> </>: <Button type='primary' onClick={handleEdit}>Edit</Button>}
+      {accountType !== 'Parent' ? edit ? <> <Button type='primary' htmlType= 'submit'>Save</Button> <Button danger onClick={handleEdit}>Cancel</Button> </>: <Button type='primary' onClick={handleEdit}>Edit</Button> : ''}
       </Form>
-      <Switch checkedChildren="Unlocked" unCheckedChildren="Locked" checked={locked} onChange={handleLock}/>
+      {accountType === 'Admin' ? <Switch checkedChildren="Unlocked" unCheckedChildren="Locked" checked={locked} onChange={handleLock}/> : ''}
+      <button onClick={() => exportPDF()}>Download Report</button> <button onClick={() => exportPDF(false)}>Generate Report in new window</button>
   </div>
   )
 }

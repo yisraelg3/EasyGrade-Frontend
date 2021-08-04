@@ -4,24 +4,32 @@ import { useSelector, useDispatch } from 'react-redux'
 import {numericSort} from './StudentsGrades'
 import { useState} from 'react'
 import { updateGradeCategoriesByClass } from './AdminSlice'
+import jsPDF from "jspdf";
+import "jspdf-autotable";
 
 export default function ClassGrades({routerProps}) {
 
   const dispatch = useDispatch()
 
-  const class_id = parseInt(routerProps.match.params.class_id)
-
   const classes = useSelector(state => state.admin.klasses)
   const token = useSelector(state => state.admin.token)
-  const klass = classes.find(klass => klass.id === class_id)
   const year = useSelector(state => state.admin.year)
-
+  const accountType = useSelector(state => state.admin.accountType)
   const gradeCategories = useSelector(state => state.admin.grade_categories)
+
+  const class_id = parseInt(routerProps.match.params.class_id)
+
+  const klass = classes.find(klass => klass.id === class_id)
+
   const classGrades = gradeCategories.filter(grade => grade.klass_id === class_id && grade.year === year) || []
 
   const name = klass ? `${klass.grade} ${klass.subject}`  : ''
- 
+
+  const years = numericSort([...new Set(gradeCategories.map(gc => gc.year))])
   let Semesters = numericSort([...new Set(classGrades.map(grade => grade.semester))]) || []
+
+  const lastYear = Math.max(...years)
+  const lastSemester = Math.max(...Semesters)
 
   const [locked, setLocked] = useState(false)
   const [edit, setEdit] = useState(false)
@@ -64,7 +72,6 @@ export default function ClassGrades({routerProps}) {
     
     // console.log(formData)
     const handleFinish = () =>{
-
       // console.log(formData)
       // const submitData = () => {
       //   let submitArray = []
@@ -96,7 +103,7 @@ export default function ClassGrades({routerProps}) {
     // console.log(formData)
 
     const handleEdit = () => {
-      if (!edit) {
+      if (formData.length < 1) {
         setFormData(data)
       }
       const toggle = !edit
@@ -147,21 +154,71 @@ export default function ClassGrades({routerProps}) {
           key: `${semester}`,
           render: (text, record, index) => {
             // console.log(text)
+            if (accountType === 'Admin') {  
               return edit ? <Input size='small' onChange={(event) => handleChange(event, record, semester, index)} value={formData[index][semester]}/> 
-              : <Typography.Text>{text}</Typography.Text>
+                : <Typography.Text>{text}</Typography.Text>
+            } else  if (accountType === 'Teacher'){
+              return edit && year === lastYear && semester === lastSemester ? <Input size='small' onChange={(event) => handleChange(event, record, semester, index)} value={formData[index][semester]}/> 
+                : <Typography.Text>{text}</Typography.Text>
+            }
             }
     })})
   ]
 
+  const exportPDF = (save=true) => {
+    const unit = "pt";
+    const size = "A4"; // Use A1, A2, A3 or A4
+    const orientation = "portrait"; // portrait or landscape
+
+    const marginLeft = 40;
+    const doc = new jsPDF(orientation, unit, size);
+
+    doc.setFontSize(15);
+
+    const title = `Report Card for ${name} - School year ${year}`;
+    const headers = [columns.map(column => column.title)]
+    const tableData = formData.length > 0 && data.length > 0 ? formData : data
+
+   const dataArray = tableData.map(data => {
+     const cell = []
+     cell.push(data.student)
+     if (data[1] !== undefined) {cell.push(data[1])} 
+     if (data[2] !== undefined) {cell.push(data[2])} 
+     if (data[3] !== undefined) {cell.push(data[3])} 
+     if (data[4] !== undefined) {cell.push(data[4])} 
+     if (data[5] !== undefined) {cell.push(data[5])} 
+     if (data[6] !== undefined) {cell.push(data[6])}
+    //  console.log(cell)
+     return cell
+   })
+   console.log(dataArray)
+    const exportData = dataArray
+
+    let content = {
+      startY: 50,
+      head: headers,
+      body: exportData
+    };
+
+    doc.text(title, marginLeft, 40);
+    doc.autoTable(content);
+    if (save) {
+      doc.save("report.pdf")
+    } else {
+      doc.output('dataurlnewwindow', {})
+    }
+  }
+
   return (
     <div className='grade-page'>
       <h1>{name}</h1>
-      <Button onClick={addSemester}>Add new Semester</Button> {newSemester.length > 0 ? <Button onClick={removeSemester}>Remove new Semester</Button> : ''}
+      {accountType === 'Admin' ? <><Button onClick={addSemester}>Add new Semester</Button> {newSemester.length > 0 ? <Button onClick={removeSemester}>Remove new Semester</Button> : ''}</>:''}
       <Form onFinish={handleFinish}>
       <Table bordered columns={columns} dataSource={formData.length > 0 && data.length > 0 ? formData : data} pagination={false} />
       { edit ? <> <Button type='primary' htmlType= 'submit'>Save</Button> <Button danger onClick={handleEdit}>Cancel</Button> </>: <Button type='primary' onClick={handleEdit}>Edit</Button>}
       </Form>
-      <Switch checkedChildren="Unlocked" unCheckedChildren="Locked" checked={locked} onChange={handleLock}/>
+      {accountType === 'Admin' ?  <Switch checkedChildren="Unlocked" unCheckedChildren="Locked" checked={locked} onChange={handleLock}/> : ''}
+      <button onClick={() => exportPDF()}>Download Report</button> <button onClick={() => exportPDF(false)}>Generate Report in new window</button>
     </div>
   )
 }
