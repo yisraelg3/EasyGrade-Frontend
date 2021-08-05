@@ -6,7 +6,7 @@ export function changeYear(year) {
 }
 
 export function login (user) {
-    if (user.accountType === 'Teacher') {
+    if (user.user.account_type === 'Teacher') {
         return ({
             type: "TEACHER_LOGIN",
             payload: user
@@ -209,7 +209,7 @@ function reducer (state = initialState, action) {
             }
         case "DELETE_TEACHER":
         // console.log("deleting teacher...")
-        const newTeacherArray = state.teachers.filter(teacher => teacher.id!== action.payload)
+        const newTeacherArray = state.teachers.filter(teacher => teacher.id !== action.payload)
         return {
             ...state,
             teachers: newTeacherArray
@@ -330,28 +330,32 @@ function reducer (state = initialState, action) {
         case "UPDATE_GRADE_CATEGORIES_BY_CLASS":
             // debugger
             // const klass = state.klasses.find(klass => klass.id === action.payload.class_id)
-            const classgGCToUpdate = state.grade_categories.filter(gc => gc.klass_id === action.payload.class_id).map(gc => gc.id)
-            const newClassGCArray = state.grade_categories.map(gc => {
-                if (classgGCToUpdate.includes(gc.id)) {
-                    return action.payload.gradeCategoriesArray.find(gradeC => gradeC.id === gc.id)
-                } else {
-                    return gc
-                }
-            })
+            // const classgGCToUpdate = state.grade_categories.filter(gc => gc.klass_id === action.payload.class_id).map(gc => gc.id)
+            // const newClassGCArray = action.payload.grade_categories.map(gc => {
+            //     if (classgGCToUpdate.includes(gc.id)) {
+            //         return action.payload.gradeCategoriesArray.find(gradeC => gradeC.id === gc.id)
+            //     } else {
+            //         return gc
+            //     }
+            // })
+            const cleanClassGCArray = state.grade_categories.filter(gc => gc.klass_id !== action.payload.class_id)
+            const newClassGCArray = [...cleanClassGCArray, ...action.payload.gradeCategoriesArray]
             return {
                 ...state,
                 grade_categories: newClassGCArray
             }
             case "UPDATE_GRADE_CATEGORIES_BY_STUDENT":
                 // const student = state.students.find(student => student.id === action.payload.student_id)
-                const studentGCToUpdate = state.grade_categories.filter(gc => gc.student_id === action.payload.student_id).map(gc => gc.id)
-                const newStudentGCArray = state.grade_categories.map(gc => {
-                    if (studentGCToUpdate.includes(gc.id)) {
-                        return action.payload.gradeCategoriesArray.find(gradeC => gradeC.id === gc.id)
-                    } else {
-                        return gc
-                    }
-                })
+                // const studentGCToUpdate = state.grade_categories.filter(gc => gc.student_id === action.payload.student_id).map(gc => gc.id)
+                // const newStudentGCArray = state.grade_categories.map(gc => {
+                //     if (studentGCToUpdate.includes(gc.id)) {
+                //         return action.payload.gradeCategoriesArray.find(gradeC => gradeC.id === gc.id)
+                //     } else {
+                //         return gc
+                //     }
+                // })
+                const cleanStudentGCArray = state.grade_categories.filter(gc => gc.student_id !== action.payload.student_id)
+                const newStudentGCArray = [...cleanStudentGCArray, ...action.payload.gradeCategoriesArray]
                 return {
                     ...state,
                     grade_categories: newStudentGCArray

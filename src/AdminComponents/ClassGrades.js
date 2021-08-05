@@ -1,9 +1,10 @@
 import React from 'react'
-import { Table, Input, Button, Form,Typography, Switch } from 'antd';
+import { Table, Input, Button, Form,Typography, Switch, Space } from 'antd';
 import { useSelector, useDispatch } from 'react-redux'
 import {numericSort} from './StudentsGrades'
 import { useState} from 'react'
 import { updateGradeCategoriesByClass } from './AdminSlice'
+import { DownloadOutlined, ExportOutlined } from '@ant-design/icons';
 import jsPDF from "jspdf";
 import "jspdf-autotable";
 
@@ -61,6 +62,7 @@ export default function ClassGrades({routerProps}) {
         // console.log(cell)
       })
       // console.log('sems:',sems)
+      cell = Object.assign({...cell}, {comments: grade.comment})
       cellData = cellData.filter(cd => cd.student !== cell.student)
       cellData = [...cellData, cell]
     })
@@ -124,6 +126,13 @@ export default function ClassGrades({routerProps}) {
       formDataCopy[i][s] = e.target.value 
       setFormData(formDataCopy)
     }
+
+    const handleCommentChange = (event, index) => {
+      const formDataCopy = [...formData]
+      formDataCopy[index].comments = event.target.value 
+      setFormData(formDataCopy)
+  }
+  console.log(formData)
     
     const addSemester = () => {
       const currentNewSemesters = [...newSemester]
@@ -161,8 +170,18 @@ export default function ClassGrades({routerProps}) {
               return edit && year === lastYear && semester === lastSemester ? <Input size='small' onChange={(event) => handleChange(event, record, semester, index)} value={formData[index][semester]}/> 
                 : <Typography.Text>{text}</Typography.Text>
             }
-            }
-    })})
+          }
+    })}),
+    {
+      title: 'Comments',
+      dataIndex: 'comments',
+      key: 'comments',
+      fixed: 'right',
+      render: (text, record, index) => {
+        return edit ? <Input.TextArea size='small' onChange={(event) => handleCommentChange(event, index)} value={formData[index].comments}/> 
+        : <Typography.Text>{text}</Typography.Text>
+      }
+    }
   ]
 
   const exportPDF = (save=true) => {
@@ -188,6 +207,7 @@ export default function ClassGrades({routerProps}) {
      if (data[4] !== undefined) {cell.push(data[4])} 
      if (data[5] !== undefined) {cell.push(data[5])} 
      if (data[6] !== undefined) {cell.push(data[6])}
+     cell.push(data.comments)
     //  console.log(cell)
      return cell
    })
@@ -213,12 +233,13 @@ export default function ClassGrades({routerProps}) {
     <div className='grade-page'>
       <h1>{name}</h1>
       {accountType === 'Admin' ? <><Button onClick={addSemester}>Add new Semester</Button> {newSemester.length > 0 ? <Button onClick={removeSemester}>Remove new Semester</Button> : ''}</>:''}
+      <Space className='pdf-buttons'><Button type='primary' shape='round' onClick={() => exportPDF()} icon={<DownloadOutlined/>}>PDF</Button> <Button type='primary' shape='round' onClick={() => exportPDF(false)} icon={<ExportOutlined />}>PDF</Button></Space>
       <Form onFinish={handleFinish}>
       <Table bordered columns={columns} dataSource={formData.length > 0 && data.length > 0 ? formData : data} pagination={false} />
-      { edit ? <> <Button type='primary' htmlType= 'submit'>Save</Button> <Button danger onClick={handleEdit}>Cancel</Button> </>: <Button type='primary' onClick={handleEdit}>Edit</Button>}
+      { edit ? <> <Button type='primary' htmlType= 'submit'>Save</Button> </>: <Button type='primary' onClick={handleEdit}>Edit</Button>}
+      {/* <Button danger onClick={handleEdit}>Cancel</Button>  */}
       </Form>
       {accountType === 'Admin' ?  <Switch checkedChildren="Unlocked" unCheckedChildren="Locked" checked={locked} onChange={handleLock}/> : ''}
-      <button onClick={() => exportPDF()}>Download Report</button> <button onClick={() => exportPDF(false)}>Generate Report in new window</button>
     </div>
   )
 }

@@ -49,6 +49,8 @@ function App(props) {
   return (
     <>
     {localStorage.token ? <NavBar/> : ''}
+    <img src='/IMG-20210804-WA0072.jpg' alt='logo' className='logo'/>
+    <img src='/pencil-304559_1280.png' alt='pencil' className='image'/>
     <Switch>
       <Route exact path='/'>
         <LoginForm/>

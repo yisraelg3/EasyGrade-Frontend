@@ -1,5 +1,5 @@
 import React from 'react'
-import { Form, Input, Button, Select } from 'antd'
+import { Form, Input, Button, Select, Space } from 'antd'
 import {useState} from 'react'
 import { withRouter } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
@@ -66,7 +66,7 @@ function NewParentForm({className, history}) {
 
   return (
     <>
-        <h1>Add new Parent</h1>
+        <h1>New Parent</h1>
         <Form labelCol={{ span: 24, offset: 11 }} wrapperCol= {{ span: 7, offset: 8}} onFinish={handleSubmit}>
             <Form.Item label='Username' >
                 <Input name='username' id='username' value = {formData.username} placeholder='Username' onChange={handleChange} />
@@ -80,10 +80,7 @@ function NewParentForm({className, history}) {
                 </Select>
             </Form.Item>
             <Form.Item >
-                    <Button type="primary" htmlType='submit'>Add Parent</Button>
-            </Form.Item>
-            <Form.Item >
-                <Button type="primary" onClick={handleClick}>Close</Button>
+                <Space><Button type="primary" htmlType='submit'>Add Parent</Button><Button type="primary" onClick={handleClick}>Close</Button></Space>
             </Form.Item>
         </Form>
     </>

@@ -1,5 +1,5 @@
 import React from 'react'
-import { Form, Input, Button, Select, List } from 'antd'
+import { Form, Input, Button, Select, List, Modal } from 'antd'
 import { useState, useEffect } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import { updateClass } from './AdminSlice'
@@ -25,9 +25,9 @@ function EditClassForm({routerProps, history}) {
     const class_students = grade_categories.filter(grade_category => grade_category.klass_id === klass.id && grade_category.year === year)
     console.log(class_students) 
     const class_students_ids = class_students.map(class_student => class_student.student_id)
-    console.log("class_students_ids:", class_students_ids)
+    // console.log("class_students_ids:", class_students_ids)
     const [formData, setFormData] = useState({})
-    console.log(formData) 
+    // console.log(formData) 
     useEffect(() => {setFormData({
         subject: klass.subject,
         grade: klass.grade,
@@ -58,7 +58,7 @@ function EditClassForm({routerProps, history}) {
         })
         .then(res => res.json())
         .then(updatedObj => {
-            // console.log(updatedObj)
+            console.log(updatedObj)
             if (updatedObj.klass) {
                 dispatch(updateClass(updatedObj))
                 history.push('/home')
@@ -112,13 +112,13 @@ function EditClassForm({routerProps, history}) {
 // console.log("currentStudents:", formData.currentStudents)
   return (
       <>
-      <h1>{klass.professional_title}</h1>
-      <Form labelCol={{ span: 24, offset: 11 }} wrapperCol= {{ span: 7, offset: 8}} onFinish={handleSubmit}>
-        <Form.Item label='Subject' >
-            <Input id='subject' name='subject' value={formData.subject} onChange={handleChange}/>
-        </Form.Item>
+      <Modal centered title={`Edit Class: ${klass.grade} ${klass.subject}`} visible={true} onCancel={()=> history.push('/home')} footer={null}>
+      <Form abelCol={{ offset: 2, span: 5}} wrapperCol= {{ span: 15}} onFinish={handleSubmit}>
         <Form.Item label='Grade' >
             <Input id='grade' name='grade' value={formData.grade} onChange={handleChange}/>
+        </Form.Item>
+        <Form.Item label='Subject' >
+            <Input id='subject' name='subject' value={formData.subject} onChange={handleChange}/>
         </Form.Item>
         <Form.Item label='Teacher' >
             <Select name='teacher' id='teacher' value={formData.teacher_id} placeholder='Select Teacher' onChange={teacherChange}>
@@ -130,7 +130,7 @@ function EditClassForm({routerProps, history}) {
             {studentOptions}
             </Select>
         </Form.Item>
-        <Form.Item >
+        <Form.Item style={{position:'relative', top:'99%', left: '75%'}}>
                 <Button type="primary" htmlType='submit'>Update</Button>
         </Form.Item>
     </Form>
@@ -144,6 +144,7 @@ function EditClassForm({routerProps, history}) {
             </List.Item>
         )
     }}/> 
+    </Modal>
     </>
   )
 }

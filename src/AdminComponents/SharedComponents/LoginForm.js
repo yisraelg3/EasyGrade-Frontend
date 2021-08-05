@@ -1,5 +1,5 @@
 import React from 'react'
-import { Link, withRouter } from 'react-router-dom'
+import { Link, Redirect, withRouter } from 'react-router-dom'
 import { Form, Input, Button, Radio } from 'antd'
 import { useState } from 'react'
 import { useDispatch} from 'react-redux'
@@ -48,9 +48,12 @@ function LoginForm({history}) {
   }
 
   return (
-    <div>
-      <Link to='/admin_signup'>Register new Admin</Link>
-      <Form labelCol={{ span: 24, offset: 11 }} wrapperCol= {{ span: 7, offset: 8}} onFinish={handleSubmit}>
+    <div align="center">
+      {localStorage.token ? <Redirect to='/home'/> : ''}
+      <h1 >Login</h1>
+      <Button><Link to='/admin_signup'>{"Click here to Register new Admininstrator"}</Link></Button>
+      <div className='login-form'>
+      <Form  onFinish={handleSubmit}>
           <Form.Item label='Username'>
               <Input name='username' id='username' placeholder='Username' value={formData.username} onChange={handleChange}></Input>
           </Form.Item>
@@ -65,10 +68,13 @@ function LoginForm({history}) {
               <Radio value='Parent'>Parent</Radio>
             </Radio.Group>
           </Form.Item>
-          <Form.Item wrapperCol={{ offset: 11 }}>
+          <Form.Item >
             <Button type="primary" htmlType='submit'>Login</Button>
         </Form.Item>
       </Form>
+      </div>
+      <br/>
+      
 
     </div>
   )

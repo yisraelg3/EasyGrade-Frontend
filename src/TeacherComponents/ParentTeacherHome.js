@@ -11,7 +11,7 @@ function ParentTeacherHome() {
     
     const state = useSelector(state => state)
     const user = state.parent.accountType !== 'Parent' ? state.admin : state.parent 
-
+// debugger
         const [current, setCurrent] = useState('students')
 
     const handleClick = (e) => {

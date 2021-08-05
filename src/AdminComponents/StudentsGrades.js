@@ -1,9 +1,10 @@
 import React from 'react'
-import { Table, Input, Typography, Form, Button, Switch } from 'antd';
+import { Table, Input, Typography, Form, Button, Switch, Space } from 'antd';
 import { useSelector,useDispatch } from 'react-redux'
 import { withRouter} from 'react-router-dom'
 import { useState} from 'react'
 import { updateGradeCategoriesByStudent } from './AdminSlice'
+import { DownloadOutlined, ExportOutlined } from '@ant-design/icons';
 import jsPDF from "jspdf";
 import "jspdf-autotable";
 
@@ -34,9 +35,10 @@ function StudentsGrades({routerProps, history}) {
 
   const teacherName = accountType === 'Teacher' ? professional_title : teacher ? teacher.professional_title : '' 
 
-  // console.log(teachersKlassIds)
+  
   // const studentGradesForIndClass = gradeCategories.filter(grade => grade.student_id === student_id && grade.klass_id === class_id && grade.year === year)
   const studentGradesForAllClasses = gradeCategories.filter(grade => grade.student_id === student_id && grade.year === year)
+  console.log(studentGradesForAllClasses)
 
   const name = studentGradesForAllClasses[0] ? studentGradesForAllClasses[0].name : ''
   
@@ -84,6 +86,7 @@ function StudentsGrades({routerProps, history}) {
         // console.log(cell)
       })
       // console.log('sems:',sems)
+      cell = Object.assign({...cell}, {comments: grade.comment})
       cellData = cellData.filter(cd => cd.subject !== cell.subject)
       cellData = [...cellData, cell]
     })
@@ -137,6 +140,11 @@ function StudentsGrades({routerProps, history}) {
       setEdit(toggle)
     }
 
+    // const handleCancel = () => {
+    //   const toggle = !edit
+    //   setEdit(toggle)
+    // }
+
     const handleLock = () => {
       const toggle = !locked
       setLocked(toggle)
@@ -150,6 +158,14 @@ function StudentsGrades({routerProps, history}) {
       formDataCopy[i][s] = e.target.value 
       setFormData(formDataCopy)
     }
+
+    const handleCommentChange = (event, index) => {
+        const formDataCopy = [...formData]
+        formDataCopy[index].comments = event.target.value 
+        setFormData(formDataCopy)
+    }
+
+    console.log(formData)
 
     const addSemester = () => {
       const currentNewSemesters = [...newSemester]
@@ -165,7 +181,7 @@ function StudentsGrades({routerProps, history}) {
       // console.log(currentNewSemesters)
       setNewSemester(currentNewSemesters)
     }
-
+console.log(data)
 const columns = [
   {
     title: 'Subject',
@@ -191,7 +207,24 @@ const columns = [
               return <Typography.Text >{text}</Typography.Text>
             } 
         }
-  })})
+  })}),
+  {
+    title: 'Comments',
+    dataIndex: 'comments',
+    key: 'comments',
+    fixed: 'right',
+    render: (text, record, index) => {
+      if (accountType === 'Admin') {
+        return edit ? <Input.TextArea size='small' onChange={(event) => handleCommentChange(event, index)} value={formData[index].comments}/> 
+        : <Typography.Text className={teachersKlassIds.includes(record.key) ? 'belongsTo' : ''}>{text}</Typography.Text>
+      } else if (accountType === 'Teacher') {
+        return edit && teachersKlassIds.includes(record.key) ? <Input.TextArea size='small' onChange={(event) => handleCommentChange(event, index)} value={formData[index].comments}/> 
+        : <Typography.Text className={teachersKlassIds.includes(record.key) ? 'belongsTo' : ''}>{text}</Typography.Text>
+      } else if (accountType === 'Parent') {
+        return <Typography.Text >{text}</Typography.Text>
+      } 
+  }
+  }
 ]
 
 const exportPDF = (save=true) => {
@@ -217,6 +250,7 @@ const exportPDF = (save=true) => {
    if (data[4] !== undefined) {cell.push(data[4])} 
    if (data[5] !== undefined) {cell.push(data[5])} 
    if (data[6] !== undefined) {cell.push(data[6])}
+   cell.push(data.comments)
   //  console.log(cell)
    return cell
  })
@@ -247,12 +281,13 @@ const exportPDF = (save=true) => {
     <h4 className='belongsTo'>Subjects in this color indicate that {teacherName} teaches that subject.</h4></> 
     :  <h1>{name}</h1>}
     {accountType === 'Admin' ? <><Button onClick={addSemester}>Add new Semester</Button> {newSemester.length > 0 ? <Button onClick={removeSemester}>Remove new Semester</Button> : ''} </>:''}
+    <Space className='pdf-buttons'><Button type='primary' shape='round' onClick={() => exportPDF()} icon={<DownloadOutlined/>}>PDF</Button> <Button type='primary' shape='round' onClick={() => exportPDF(false)} icon={<ExportOutlined />}>PDF</Button></Space>
     <Form onFinish={handleFinish} >
       <Table bordered columns={columns} dataSource={formData.length > 0 && data.length > 0 ? formData : data} pagination={false} />
-      {accountType !== 'Parent' ? edit ? <> <Button type='primary' htmlType= 'submit'>Save</Button> <Button danger onClick={handleEdit}>Cancel</Button> </>: <Button type='primary' onClick={handleEdit}>Edit</Button> : ''}
+      {accountType !== 'Parent' ? edit ? <> <Button type='primary' htmlType= 'submit'>Save</Button> </>: <Button type='primary' onClick={handleEdit}>Edit</Button> : ''}
+      {/* <Button danger onClick={handleCancel}>Cancel</Button>  */}
       </Form>
       {accountType === 'Admin' ? <Switch checkedChildren="Unlocked" unCheckedChildren="Locked" checked={locked} onChange={handleLock}/> : ''}
-      <button onClick={() => exportPDF()}>Download Report</button> <button onClick={() => exportPDF(false)}>Generate Report in new window</button>
   </div>
   )
 }

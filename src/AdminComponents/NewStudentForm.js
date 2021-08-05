@@ -1,5 +1,5 @@
 import React from 'react'
-import { Form, Input, Button, DatePicker, Select, Divider } from 'antd'
+import { Form, Input, Button, DatePicker, Select, Divider, Space } from 'antd'
 import moment from 'moment'
 import {useState} from 'react'
 import { withRouter } from 'react-router-dom'
@@ -10,6 +10,7 @@ function NewStudentForm({className, history}) {
 
     const classes = useSelector(state => state.admin.klasses)
     const token = useSelector(state => state.admin.token)
+    const year = useSelector(state => state.admin.year) 
 
     const classesDisplay =
         classes.length > 0 ? 
@@ -21,12 +22,14 @@ function NewStudentForm({className, history}) {
         birth_date: moment('01/01/2015', 'MM/DD/YYYY'),
         parent_id: 0,
         picture_url: '',
-        currentClasses: []
+        currentClasses: [],
+        year: year
     })
 
     const dispatch = useDispatch()
 
     const handleSubmit = () => {
+        console.log(formData)
         fetch(`http://localhost:3000/students`, {
             method: 'POST',
             headers: {"Content-type":"application/json", 
@@ -44,7 +47,8 @@ function NewStudentForm({className, history}) {
                     birth_date: moment('01/01/2015', 'MM/DD/YYYY'),
                     parent_id: 0,
                     picture_url: '',
-                    currentClasses: []
+                    currentClasses: [],
+                    year: year
                 })
             } else {
                 alert(responseObj.errors)
@@ -83,8 +87,11 @@ function NewStudentForm({className, history}) {
     const options = classesDisplay.map(klass => <Select.Option key={klass.id} value={klass.id}>{klass.name}</Select.Option>)
 
   return (
-      <>
-      <Form labelCol={{ span: 24, offset: 11 }} wrapperCol= {{ span: 7, offset: 8}} onFinish={handleSubmit}>
+      <div align='center'>
+          <br/>
+      <h1>New Student</h1>
+      <br/>
+      <Form labelCol={{ offset: 2, span: 5}} wrapperCol= {{ span: 9}} onFinish={handleSubmit}>
             <Form.Item label='First name' >
                 <Input name='first_name' id='first_name' value = {formData.first_name} placeholder='First Name' onChange={handleChange} />
             </Form.Item>
@@ -97,20 +104,17 @@ function NewStudentForm({className, history}) {
                 {options}
                 </Select>
             </Form.Item>
-            <Form.Item label='Picture URL' >
+            {/* <Form.Item label='Picture URL' >
                 <Input name='picture_url' id='picture_url' value = {formData.picture_url} placeholder='picture_url' onChange={handleChange} />
             </Form.Item>
             <Form.Item label='Birth Date'>
                 <DatePicker name='birth_date' id='birth_date' value={formData.birth_date} onChange={dateChange} format={customFormat}/>
-            </Form.Item>
-            <Form.Item wrapperCol={{ offset: 11 }}>
-                <Button type="primary" htmlType='submit'>{className==='admins' ? 'Sign up' : `Add ${className}`}</Button>
-            </Form.Item>
-            <Form.Item >
-                <Button type="primary" onClick={handleClick}>Close</Button>
+            </Form.Item> */}
+            <Form.Item style={{position:'relative', top:'99%', left: '28%'}}>
+                <Space><Button type="primary" htmlType='submit'>Add Student</Button><Button type="primary" onClick={handleClick}>Close</Button></Space>
             </Form.Item>
         </Form>
-        </>
+        </div>
   )
 }
 export default withRouter(NewStudentForm)

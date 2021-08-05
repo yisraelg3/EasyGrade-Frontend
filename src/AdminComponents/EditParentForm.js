@@ -1,5 +1,5 @@
 import React, {  } from 'react'
-import { Form, Input, Button, Select, List } from 'antd'
+import { Form, Input, Button, Select, List, Modal } from 'antd'
 import {useState, useEffect, useMemo} from 'react'
 import { withRouter } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
@@ -82,8 +82,8 @@ function EditParentForm({className, history, routerProps}) {
 // console.log('currentStudents', formData.currentStudents)
   return (
     <>
-        <h1>Edit Parent</h1>
-        <Form labelCol={{ span: 24, offset: 11 }} wrapperCol= {{ span: 7, offset: 8}} onFinish={handleSubmit}>
+        <Modal centered title={`Edit Parent: ${parent.username}`} visible={true} onCancel={()=> history.push('/home')} footer={null}>
+        <Form labelCol={{ offset: 2, span: 5}} wrapperCol= {{ span: 15}} onFinish={handleSubmit}>
             <Form.Item label='Username' >
                 <Input name='username' id='username' value = {formData.username} placeholder='Username' onChange={handleChange} />
             </Form.Item>
@@ -95,7 +95,7 @@ function EditParentForm({className, history, routerProps}) {
                     {studentOptions}
                 </Select>
             </Form.Item>
-            <Form.Item >
+            <Form.Item style={{position:'relative', top:'99%', left: '75%'}}>
                     <Button type="primary" htmlType='submit'>Update</Button>
             </Form.Item>
         </Form>
@@ -109,6 +109,7 @@ function EditParentForm({className, history, routerProps}) {
             </List.Item>
         )
     }}/> 
+    </Modal>
     </>
   )
 }

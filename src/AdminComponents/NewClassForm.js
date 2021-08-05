@@ -1,5 +1,5 @@
 import React from 'react'
-import { Form, Input, Button, Select } from 'antd'
+import { Form, Input, Button, Select, Space } from 'antd'
 import {useState} from 'react'
 import { withRouter } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
@@ -9,6 +9,7 @@ function NewClassForm({history}) {
 
     const teachers = useSelector(state => state.admin.teachers)
     const students = useSelector(state => state.admin.students) 
+    const year = useSelector(state => state.admin.year) 
 
     const [formData, setFormData] = useState({
         subject: '',
@@ -16,7 +17,8 @@ function NewClassForm({history}) {
         locked: false,
         teacher_id: "No teacher",
         gradeCategories: '',
-        currentStudents: []
+        currentStudents: [],
+        year: year
     })
 
     const dispatch = useDispatch()
@@ -102,12 +104,13 @@ function NewClassForm({history}) {
 
   return (
       <>
+      <h1>New Class</h1>
     <Form labelCol={{ span: 24, offset: 11 }} wrapperCol= {{ span: 7, offset: 8}} onFinish={handleSubmit}>
-        <Form.Item label='Subject' >
-            <Input id='subject' name='subject' value={formData.subject} onChange={handleChange}/>
-        </Form.Item>
         <Form.Item label='Grade' >
             <Input id='grade' name='grade' value={formData.grade} onChange={handleChange}/>
+        </Form.Item>
+        <Form.Item label='Subject' >
+            <Input id='subject' name='subject' value={formData.subject} onChange={handleChange}/>
         </Form.Item>
         <Form.Item label='Teacher' >
             <Select name='teacher' id='teacher' value={formData.teacher_id} placeholder='Select Teacher' onChange={teacherChange}>
@@ -120,10 +123,7 @@ function NewClassForm({history}) {
             </Select>
         </Form.Item>
         <Form.Item >
-                <Button type="primary" htmlType='submit'>Add Class</Button>
-        </Form.Item>
-        <Form.Item >
-                <Button type="primary" onClick={handleClick}>Close</Button>
+                <Space><Button type="primary" htmlType='submit'>Add Class</Button>  <Button type="primary" onClick={handleClick}>Close</Button></Space>
         </Form.Item>
     </Form>
     {/* <List 

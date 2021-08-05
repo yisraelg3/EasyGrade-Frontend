@@ -18,7 +18,7 @@ function TopLevelResource({currentResource, history}) {
                 return item.professional_title
             case 'klasses':
                 const teacher = state.teachers.find(teacher => teacher.id === item.teacher_id)
-                return `${item.grade} ${item.subject} ${accountType === 'Admin' ?`- ${teacher.professional_title}` : ''}`
+                return `${item.grade} ${item.subject} ${accountType === 'Admin' && teacher ?`- ${teacher.professional_title}` : ''}`
             case 'students':
                 return `${item.first_name} ${item.last_name}`
             case 'parents':
@@ -62,6 +62,7 @@ function TopLevelResource({currentResource, history}) {
         })
         .then(res => res.json())
         .then(deletedObj => {
+            console.log(currentResource)
             if (deletedObj.id) {
                 forDispatch(id)
             } else {
@@ -84,18 +85,22 @@ function TopLevelResource({currentResource, history}) {
                 <Button data-id={item.id} onClick={handleDelete} key="delete">delete</Button>
             ])
             case 'students':
-                return ([
+                return (accountType === 'Admin' ?  [
                     <Button data-id={item.id} onClick={()=> history.push(`/students/${item.id}/report_card`)} key="report_card">Report Card</Button>,
                     // <Button data-id={item.id} onClick={()=> history.push(`/students/${item.id}/classes`)} key="classes">Subjects</Button>,
-                    accountType === 'Admin' ? <><Button data-id={item.id} onClick={handleEdit} key="edit">edit</Button>,
-                    <Button data-id={item.id} onClick={handleDelete} key="delete">delete</Button> </>: ''
-                ])
+                    <Button data-id={item.id} onClick={handleEdit} key="edit">edit</Button>,
+                    <Button data-id={item.id} onClick={handleDelete} key="delete">delete</Button> ]
+                    :
+                    [<Button data-id={item.id} onClick={()=> history.push(`/students/${item.id}/report_card`)} key="report_card">Report Card</Button>]
+                )
             case 'klasses':
-                return ([
+                return (accountType === 'Admin' ? [
                     <Button data-id={item.id} onClick={()=> history.push(`/classes/${item.id}/report_card`)} key="report_card">Report Card</Button>,
-                    accountType === 'Admin' ? <><Button data-id={item.id} onClick={handleEdit} key="edit">edit</Button>,
-                    <Button data-id={item.id} onClick={handleDelete} key="delete">delete</Button> </>: ''
-                ])
+                    <Button data-id={item.id} onClick={handleEdit} key="edit">edit</Button>,
+                    <Button data-id={item.id} onClick={handleDelete} key="delete">delete</Button>]
+                    : 
+                    [<Button data-id={item.id} onClick={()=> history.push(`/classes/${item.id}/report_card`)} key="report_card">Report Card</Button>]
+                    )
             case 'parents':
                 return ([
                 <Button data-id={item.id} onClick={()=> history.push(`/parents/${item.id}`)} key="students">Students</Button>,

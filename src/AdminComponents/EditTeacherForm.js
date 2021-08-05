@@ -1,11 +1,11 @@
 import React from 'react'
-import { Form, Input, Button } from 'antd'
+import { Form, Input, Button, Modal } from 'antd'
 import { useState, useEffect } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import { updateTeacher } from './AdminSlice'
 import { withRouter } from 'react-router-dom'
 
-function EditTeacherForm({routerProps, history}) {
+function EditTeacherForm({routerProps, history, setEditTeacher}) {
 
     const {id} = routerProps.match.params
     const state = useSelector(state => state.admin)
@@ -62,30 +62,31 @@ function EditTeacherForm({routerProps, history}) {
                
   return (
       <>
-      <h1>{teacher.professional_title}</h1>
-    <Form labelCol={{ span: 24, offset: 11 }} wrapperCol= {{ span: 7, offset: 8}} onFinish={handleSubmit}> 
-        <Form.Item label='Username' >
-            <Input name='username' id='username' value={formData.username} placeholder='Username' onChange={handleChange} />
-        </Form.Item>
-        <Form.Item label='Password'>
-            <Input.Password name='password' id='password' value = {formData.password} placeholder='Password' onChange={handleChange} />
-        </Form.Item >
-        <Form.Item label='Title' >
-            <Input name='title' id='title' value={formData.title} placeholder='Title' onChange={handleChange} />
-        </Form.Item>
-        <Form.Item label='First name' >
-            <Input name='first_name' id='first_name' value={formData.first_name} placeholder='First name' onChange={handleChange} />
-        </Form.Item>
-        <Form.Item label='Last name' >
-            <Input name='last_name' id='last_name' value={formData.last_name} placeholder='Last name' onChange={handleChange} />
-        </Form.Item>
-        <Form.Item label='Picture URL' >
-            <Input name='picture_url' id='picture_url' value={formData.picture_url} placeholder='Picture URL' onChange={handleChange} />
-        </Form.Item>
-        <Form.Item >
-                <Button type="primary" htmlType='submit'>Update</Button>
-        </Form.Item>
-    </Form>
+        <Modal centered title={`Edit Teacher: ${teacher.professional_title}`} visible={true} onCancel={()=>history.goBack()} footer={null}>
+            <Form labelCol={{ offset: 2, span: 5}} wrapperCol= {{ span: 15}} onFinish={handleSubmit}> 
+                <Form.Item label='Username' >
+                    <Input name='username' id='username' value={formData.username} placeholder='Username' onChange={handleChange} />
+                </Form.Item>
+                <Form.Item label='Password'>
+                    <Input.Password name='password' id='password' value = {formData.password} placeholder='Password' onChange={handleChange} />
+                </Form.Item >
+                <Form.Item label='Title' >
+                    <Input name='title' id='title' value={formData.title} placeholder='Title' onChange={handleChange} />
+                </Form.Item>
+                <Form.Item label='First name' >
+                    <Input name='first_name' id='first_name' value={formData.first_name} placeholder='First name' onChange={handleChange} />
+                </Form.Item>
+                <Form.Item label='Last name' >
+                    <Input name='last_name' id='last_name' value={formData.last_name} placeholder='Last name' onChange={handleChange} />
+                </Form.Item>
+                <Form.Item label='Picture URL' >
+                    <Input name='picture_url' id='picture_url' value={formData.picture_url} placeholder='Picture URL' onChange={handleChange} />
+                </Form.Item>
+                <Form.Item style={{position:'relative', top:'99%', left: '75%'}}>
+                        <Button type="primary" htmlType='submit'>Update</Button>
+                </Form.Item>
+            </Form>
+        </Modal>
     </>
   )
 }

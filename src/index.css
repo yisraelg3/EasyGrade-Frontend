@@ -1,6 +1,16 @@
+body {
+    /* background-image: url('./static/pencil-304559_1280.png'); */
+    background-size:cover;
+    background: transparent\1;
+    /* background: transparent; */
+    height:100%
+}
+
+
 span.ant-typography.belongsTo, .belongsTo {
     color: blue;
-    font-weight: 700
+    font-weight: 700;
+    justify-content: space-around;
 }
 
 .grade-page {
@@ -9,4 +19,102 @@ span.ant-typography.belongsTo, .belongsTo {
     top: 50%;
     transform: translate(-50%, -50%); */
     margin: auto;  display: table; width: 75%    
+}
+
+div#navbar {
+    background-color: rgb(81, 177, 194);
+    display: flex;
+    height:42px;
+    justify-content: space-evenly;
+    /* height: 200%; */
+}
+
+.back-btn {
+    position: absolute;
+    top: 5px;
+    left: 0px;
+}
+
+div > .nav-bar-item, div.nav-bar-item.ant-select-single.ant-select-arrow {
+    height: 40px;
+    float: right;
+    width: 33%;
+    text-align: center;
+}
+
+div.nav-bar-item.ant-select-selector {
+    height: 120%;
+    margin: auto;
+}
+
+button.log-out-btn {
+    position: absolute;
+    top: 0px;
+    right: 0px;
+}
+
+h1 {
+    padding-top: 2%;
+    text-align:center;
+    font-family:'Alegreya'
+}
+
+div.grade-page div.ant-space {
+   padding-left: 1em;
+}
+
+div.home-containers {
+    position: relative;
+    display: flex;
+    justify-content:space-around;
+    flex-direction: row;
+    height:100vh
+}
+
+div#add-buttons {
+    justify-content: space-between;
+    display: flex;
+    flex-direction: column;
+    height: 500px;
+    width:17%
+}
+
+div.home-menu {
+    justify-content: space-evenly;
+    width: 70%;
+    /* border:dashed;
+    border-width: 4px;
+    border-style:groove; */
+    overflow: auto;
+    height:100vh;
+    /* margin:0% */
+}
+
+.home-page {
+    height:100vh;
+}
+
+.new-h2 {
+    border-bottom: solid;
+    text-align: center;
+    margin:inherit;
+}
+
+.image {
+    position: fixed;
+    height: 200pt;
+    width:200pt;
+    right:50px;
+    top: 200pt
+}
+
+.logo {
+    position: absolute;
+    padding-top: 10px;
+
+}
+
+div.login-form form.ant-form.ant-form-horizontal  {
+    padding-top: 50px;
+    width:30%
 }

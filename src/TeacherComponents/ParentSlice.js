@@ -11,6 +11,11 @@ export function changeYear(year) {
         payload: year 
     }
 }
+export function parentLogOut () {
+    return({
+        type: "LOGOUT"
+    })
+}
 
 const initialState = {
     accountType: '',
@@ -45,6 +50,11 @@ function reducer (state = initialState, action) {
                 ...state,
                 year: state.year = action.payload
            } 
+        case 'LOGOUT':
+            return{
+                ...state,
+                ...initialState
+            }
         default:
             return {
                 ...state
