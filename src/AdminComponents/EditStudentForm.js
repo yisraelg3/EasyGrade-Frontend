@@ -1,6 +1,6 @@
 import React from 'react'
 import { Form, Input, Button, Select, List, Divider, Modal } from 'antd'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import { updateStudent } from '../redux/StudentSlice'
 import { withRouter } from 'react-router-dom'
@@ -11,7 +11,7 @@ function EditStudentForm({routerProps, history}) {
     const {id} = routerProps.match.params
     const classes = useSelector(state => state.klasses)
     const students = useSelector(state => state.students) 
-    const grade_categories = useSelector(state => state.gradeCategories) || []
+    const grade_categories = useSelector(state => state.gradeCategories)
     const token = useSelector(state => state.user.token)
     const year = useSelector(state => state.user.year)
     // console.log(students)
@@ -22,8 +22,11 @@ function EditStudentForm({routerProps, history}) {
 
     // const teacher = teachers.find(teacher => teacher.id === klass.teacher_id) || {id: "No teacher"}
 
-    const studentClasses = grade_categories.filter(grade_category => grade_category.student_id === student.id && grade_category.year === year) 
-    const studentClassIds = [...new Set(studentClasses.map(studentClass => studentClass.klass_id))]
+    const studentClassIds = useMemo(() => {
+        const studentClasses = grade_categories.filter(grade_category => grade_category.student_id === student.id && grade_category.year === year) 
+        return [...new Set(studentClasses.map(studentClass => studentClass.klass_id))]
+    }, [grade_categories, student.id, year])
+
     // console.log("class_students_ids:", studentClassIds)
     const [formData, setFormData] = useState({})
     useEffect(() => {setFormData({
@@ -34,7 +37,7 @@ function EditStudentForm({routerProps, history}) {
         picture_url: student.picture_url,
         addClasses: [],
         currentClasses: studentClassIds
-    })},[student.birth_date, student.first_name, student.last_name, student.parent_id, student.picture_url, year])
+    })},[student.birth_date, student.first_name, student.last_name, student.parent_id, student.picture_url, year, studentClassIds])
 
       const classesDisplay =
         classes.length > 0 ? 
@@ -114,7 +117,7 @@ function EditStudentForm({routerProps, history}) {
   return (
       <>
       <Modal centered title={`Edit Student: ${student.first_name} ${student.last_name}`} visible={true} onCancel={()=>history.goBack()} footer={null}>
-        <Form labelCol={{ offset: 2, span: 5}} wrapperCol= {{ span: 15}} onFinish={handleSubmit}>
+        <Form labelCol={{offset: 2, span: 5}} wrapperCol={{span: 15}} onFinish={handleSubmit}>
                 <Form.Item label='First name'>
                     <Input name='first_name' id='first_name' value = {formData.first_name} placeholder='First Name' onChange={handleChange} />
                 </Form.Item>

@@ -60,11 +60,11 @@ function reducer (state = initialState, action) {
     console.log(action)  
     switch(action.type) {
         case "LOGIN":
-            return sortKlass([...state, ...action.payload.user.klasses])
+            return sortKlass(action.payload.user.klasses)
         case "TEACHER_LOGIN":
-            return sortKlass([...state, ...action.payload.user.klasses])
+            return sortKlass(action.payload.user.klasses)
         case "PARENT_LOGIN":
-            return sortKlass([...state, ...action.payload.user.klasses])
+            return sortKlass(action.payload.user.klasses)
         case 'LOGOUT':
             return initialState
         case "ADD_CLASS":
@@ -77,14 +77,11 @@ function reducer (state = initialState, action) {
                     return klass
                 }
             })
-            return sortKlass(...state, ...updatedClassArray)
+            return sortKlass(updatedClassArray)
         case "DELETE_CLASS":
             // console.log("deleting Class...")
             const newClassArray = state.filter(klass => klass.id!== action.payload)
-            return [
-                ...state,
-                ...newClassArray
-            ]
+            return newClassArray
         default:
             return state
     }

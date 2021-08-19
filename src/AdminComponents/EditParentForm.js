@@ -13,14 +13,14 @@ function EditParentForm({className, history, routerProps}) {
   const parent = parents.find(parent => parent.id === parseInt(id)) || {username: '', password: ''}
   const students = useSelector(state => state.students)
   const token = useSelector(state => state.user.token)
-  const filteredStudentIds = [...new Set(students.filter(student => student.parent_id === parseInt(id)).map(student => student.id))]
+  const filteredStudentIds = useMemo(() => [...new Set(students.filter(student => student.parent_id === parseInt(id)).map(student => student.id))], [id, students])
   
   useEffect(() => {setFormData({
     username: parent.username,
     password: parent.password,
     addStudents: [],
     currentStudents: filteredStudentIds
-})},[parent.username, parent.password])
+})},[parent.username, parent.password, filteredStudentIds])
 
   const dispatch = useDispatch()
 

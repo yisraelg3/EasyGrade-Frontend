@@ -39,10 +39,7 @@ const initialState = []
 function reducer (state = initialState, action) {
     switch(action.type) {
         case "LOGIN":
-            return [
-                ...state,
-                ...action.payload.user.parents
-            ]
+            return action.payload.user.parents
         case 'LOGOUT':
             return initialState
         case "ADD_PARENT":
@@ -58,17 +55,11 @@ function reducer (state = initialState, action) {
                     return parent
                 }
             })
-            return [
-                ...state,
-                ...updatedParentArray
-            ]
+            return updatedParentArray
         case "DELETE_PARENT":
             // console.log("deleting Student...")
             const newParentArray = state.filter(parent => parent.id !== action.payload.id)
-            return [
-                ...state,
-                ...newParentArray
-            ]
+            return newParentArray
         default:
             return state
     }

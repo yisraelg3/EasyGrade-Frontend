@@ -16,6 +16,7 @@ function TopLevelResource({currentResource, history, searchTerm}) {
     const dispatch = useDispatch()
     
     const filteredresource = () => {
+        console.log(currentResource)
         switch (currentResource) {
             case 'teachers':
                 return state.teachers.filter(row => mapCurrentArray(row).toLowerCase().includes(searchTerm.toLowerCase()))
@@ -55,7 +56,7 @@ function TopLevelResource({currentResource, history, searchTerm}) {
             case 'students':
                 return dispatch(deleteStudent(id))
             case 'parents':
-                const defaultParent = state.parent.find(parent => parent.username === 'parent')
+                const defaultParent = state.parents.find(parent => parent.username === 'parent')
                 return dispatch(deleteParent({id: id, defaultParent}))
             default: 
                 return ''
@@ -65,7 +66,7 @@ function TopLevelResource({currentResource, history, searchTerm}) {
     const handleDelete = (e) => {
         // console.log(parseInt(e.currentTarget.dataset.id))
         const id = parseInt(e.currentTarget.dataset.id)
-        if (currentResource === 'teachers' && state.klass.find(klass => klass.teacher_id === id)) {
+        if (currentResource === 'teachers' && state.klasses.find(klass => klass.teacher_id === id)) {
             if (!window.confirm("This teacher is still assigned to a class. "+
             "If deleted the class will be \nunassigned and will have no teacher, continue?")) {
                 return

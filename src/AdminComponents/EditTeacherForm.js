@@ -22,6 +22,7 @@ function EditTeacherForm({routerProps, history, setEditTeacher}) {
     last_name: ''}
 
     const [formData, setFormData] = useState({})
+    
     useEffect(() => { setFormData({
         username: teacher.username,
         password: teacher.password,
@@ -30,7 +31,8 @@ function EditTeacherForm({routerProps, history, setEditTeacher}) {
         first_name: teacher.first_name,
         last_name: teacher.last_name
       })},[teacher.first_name, teacher.last_name, teacher.picture_url, teacher.title, teacher.username, teacher.password])
-      console.log(formData)
+
+    //   console.log(formData)
       const handleChange = (e) => {
         //   console.log(e.target.value)
         setFormData({

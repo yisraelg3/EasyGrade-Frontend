@@ -43,27 +43,6 @@ export function deleteStudent (id) {
     })
 }
 
-export function addParent (parent) {
-    return({
-        type: "ADD_PARENT",
-        payload: parent
-    })
-}
-
-export function updateParent (parent) {
-    return({
-        type: "UPDATE_PARENT",
-        payload: parent
-    })
-}
-
-export function deleteParent (parent) {
-    return({
-        type: "DELETE_PARENT",
-        payload: parent
-    })
-}
-
 export function sortKlass(array) {
     const sorted_array = array.sort(function (a, b) {
         if (a.grade < b.grade) {
@@ -81,20 +60,11 @@ function reducer (state = initialState, action) {
     console.log(action)
     switch(action.type) {
         case "LOGIN":
-            return [
-                ...state,
-                ...action.payload.user.students
-            ]
+            return action.payload.user.students
         case "TEACHER_LOGIN":
-            return [
-                ...state,
-                ...action.payload.user.students
-            ]
+            return action.payload.user.students
         case "PARENT_LOGIN":
-            return [
-                ...state,
-                ...action.payload.user.students
-            ]
+            return action.payload.user.students
         case 'LOGOUT':
             return initialState
         case "ADD_STUDENT":
@@ -110,17 +80,10 @@ function reducer (state = initialState, action) {
                     return student
                 }
             })
-            return [
-                ...state,
-                ...updatedStudentArray
-            ]
+            return updatedStudentArray
         case "DELETE_STUDENT":
-            // console.log("deleting Student...")
             const newStudentArray = state.filter(student => student.id!== action.payload)
-            return [
-                ...state,
-                ...newStudentArray
-            ]
+            return newStudentArray
         case "ADD_PARENT":
             const studentIds = action.payload.students.map(student => student.id)
             const newStudentFromParentArray = state.map(oldStudent => {
@@ -130,10 +93,7 @@ function reducer (state = initialState, action) {
                     return oldStudent
                 }
             })
-            return [
-                ...state,
-                ...newStudentFromParentArray
-            ] 
+            return newStudentFromParentArray
         case "UPDATE_PARENT":
             const updatedStudentIds = action.payload.students.map(student => student.id)
             const updatedStudentsFromParentArray = state.map(oldStudent => {
@@ -147,12 +107,9 @@ function reducer (state = initialState, action) {
                     return oldStudent
                 }
             })
-            return [
-                ...state,
-                ...updatedStudentsFromParentArray
-            ]
+            return updatedStudentsFromParentArray
         case "DELETE_PARENT":
-            const studentsToUnassign = state.map(oldStudent => {
+            const reassignedStudentsArray = state.map(oldStudent => {
                 if (oldStudent.id === action.payload.id) {
                     const updatedStudent = {...oldStudent}
                     updatedStudent.parent_id = action.payload.defaultParent.id
@@ -161,10 +118,7 @@ function reducer (state = initialState, action) {
                     return oldStudent
                 }
             })
-            return [
-                ...state,
-                ...studentsToUnassign
-            ]
+            return reassignedStudentsArray
         default:
             return state
     }

@@ -82,43 +82,25 @@ function reducer (state = initialState, action) {
     console.log(action)
     switch(action.type) {
         case "LOGIN":
-            return [
-                ...state,
-                ...action.payload.user.grade_categories
-            ]
+            return action.payload.user.grade_categories
         case "TEACHER_LOGIN":
-            return [
-                ...state,
-                ...action.payload.grade_categories
-            ]
+            return action.payload.grade_categories
         case "PARENT_LOGIN":
-            return [
-                ...state,
-                ...action.payload.user.grade_categories
-            ]
+            return action.payload.user.grade_categories
         case 'LOGOUT':
             return initialState
         case "ADD_CLASS":
-            return [
-                ...state,
-                ...action.payload.grade_categories
-            ]
+            return [...state, ...action.payload.grade_categories]
         case "UPDATE_CLASS":
-            const removedFromClass = state.filter(grade_category => grade_category.klass_id !== action.payload.klass.id)
-            const addedToClass = [...removedFromClass, ...action.payload.grade_categories]
-            return [
-                ...state,
-                ...addedToClass
-            ]   
+            const unassignedGCFromClassArray = state.filter(grade_category => grade_category.klass_id !== action.payload.klass.id)
+            const updatedClassGCArray = [...unassignedGCFromClassArray, ...action.payload.grade_categories]
+            return updatedClassGCArray
         case "ADD_STUDENT":
             return [...state, ...action.payload.grade_categories]
         case "UPDATE_STUDENT":
-            const removedFromStudent = state.filter(grade_category => grade_category.student_id !== action.payload.student.id)
-            const addedToStudent = [...removedFromStudent, ...action.payload.grade_categories]
-            return [
-                ...state,
-                ...addedToStudent
-            ]  
+            const removedGCFromStudentArray = state.filter(grade_category => grade_category.student_id !== action.payload.student.id)
+            const updatedStudentGCArray = [...removedGCFromStudentArray, ...action.payload.grade_categories]
+            return updatedStudentGCArray
         case "UPDATE_GRADE_CATEGORIES_BY_CLASS":
             // debugger
             // const klass = state.klasses.find(klass => klass.id === action.payload.class_id)
@@ -132,10 +114,7 @@ function reducer (state = initialState, action) {
             // })
             const cleanClassGCArray = state.filter(gc => gc.klass_id !== action.payload.class_id)
             const newClassGCArray = [...cleanClassGCArray, ...action.payload.gradeCategoriesArray]
-            return [
-                ...state,
-                ...newClassGCArray
-            ]
+            return newClassGCArray
             case "UPDATE_GRADE_CATEGORIES_BY_STUDENT":
                 // const student = state.students.find(student => student.id === action.payload.student_id)
                 // const studentGCToUpdate = state.grade_categories.filter(gc => gc.student_id === action.payload.student_id).map(gc => gc.id)
@@ -148,11 +127,7 @@ function reducer (state = initialState, action) {
                 // })
                 const cleanStudentGCArray = state.filter(gc => gc.student_id !== action.payload.student_id)
                 const newStudentGCArray = [...cleanStudentGCArray, ...action.payload.gradeCategoriesArray]
-                console.log(newStudentGCArray)
-                return [
-                    ...state,
-                    ...newStudentGCArray
-                ]
+                return newStudentGCArray
         default:
             return state
     }

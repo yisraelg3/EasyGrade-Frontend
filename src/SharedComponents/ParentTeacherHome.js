@@ -36,8 +36,8 @@ function ParentTeacherHome() {
         </Menu.Item>
     </Menu> 
     <TopLevelResource currentResource={current} searchTerm={searchTerm}/>
-    </> : ''}
-    <ParentDisplay/>
+    </> : 
+    <ParentDisplay/>}
     </>
   )
 }

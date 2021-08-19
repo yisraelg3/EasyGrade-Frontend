@@ -11,7 +11,7 @@ function EditClassForm({routerProps, history}) {
     const klasses = useSelector(state => state.klasses)
     const teachers = useSelector(state => state.teachers)
     const students = useSelector(state => state.students) 
-    const grade_categories = useSelector(state => state.gradeCategories) || []
+    const grade_categories = useSelector(state => state.gradeCategories) 
     const token = useSelector(state => state.user.token)
     const year = useSelector(state => state.user.year)
     // console.log(students)
@@ -22,8 +22,11 @@ function EditClassForm({routerProps, history}) {
 
     const teacher = teachers.find(teacher => teacher.id === klass.teacher_id) || {id: "No teacher"}
     // debugger
-    const class_students = grade_categories.filter(grade_category => grade_category.klass_id === klass.id && grade_category.year === year)
-    const class_students_ids = [...new Set(class_students.map(class_student => class_student.student_id))]
+    
+    const class_students_ids = useMemo(() => {
+        const class_students = grade_categories.filter(grade_category => grade_category.klass_id === klass.id && grade_category.year === year)
+        return [...new Set(class_students.map(class_student => class_student.student_id))]
+    },[grade_categories, klass.id, year])
 
     const [formData, setFormData] = useState({})
     // console.log(formData) 
@@ -35,7 +38,7 @@ function EditClassForm({routerProps, history}) {
         gradeCategories: '',
         addStudents: [],
         currentStudents: [...class_students_ids]
-    })},[teacher.id, klass.grade, klass.subject, year])
+    })},[teacher.id, klass.grade, klass.subject, year, class_students_ids])
 
       const handleChange = (e) => {
         //   console.log(e.target.value)
@@ -112,7 +115,7 @@ function EditClassForm({routerProps, history}) {
   return (
       <>
       <Modal centered title={`Edit Class: ${klass.grade} ${klass.subject}`} visible={true} onCancel={()=>history.goBack()} footer={null}>
-      <Form abelCol={{ offset: 2, span: 5}} wrapperCol= {{ span: 15}} onFinish={handleSubmit}>
+      <Form labelCol={{ offset: 2, span: 5}} wrapperCol= {{ span: 15}} onFinish={handleSubmit}>
         <Form.Item label='Grade' >
             <Input id='grade' name='grade' value={formData.grade} onChange={handleChange}/>
         </Form.Item>

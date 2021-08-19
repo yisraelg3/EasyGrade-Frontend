@@ -40,17 +40,11 @@ function reducer (state = initialState, action) {
     console.log(action)
     switch(action.type) {
         case "LOGIN":
-            return [
-                ...state,
-                ...action.payload.user.teachers
-            ]
+            return action.payload.user.teachers
         case 'LOGOUT':
             return initialState
         case "ADD_TEACHER":
-            return [
-                ...state,
-                action.payload
-            ]
+            return [...state, action.payload]
         case "UPDATE_TEACHER":
             const updatedTeacherArray = state.map(teacher => {
                 if (teacher.id === action.payload.id) {
@@ -59,16 +53,10 @@ function reducer (state = initialState, action) {
                     return teacher
                 }
             })
-            return [
-                ...state,
-                ...updatedTeacherArray
-            ]
+            return updatedTeacherArray
         case "DELETE_TEACHER":
             const newTeacherArray = state.filter(teacher => teacher.id !== action.payload)
-            return [
-                ...state,
-                ...newTeacherArray
-            ]
+            return newTeacherArray
         default:
             return state
     }
