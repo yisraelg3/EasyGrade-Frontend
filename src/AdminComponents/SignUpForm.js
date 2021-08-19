@@ -1,9 +1,9 @@
-import React from 'react'
+import React, {useState} from 'react'
 import { Form, Input, Button, Divider, Space } from 'antd'
-import {useState} from 'react'
 import { withRouter, Link } from 'react-router-dom'
 import { useDispatch } from 'react-redux'
-import { login, addTeacher } from '../AdminSlice'
+import { addTeacher } from '../redux/TeacherSlice'
+import { login } from '../redux/LoginSlice'
 
 function SignUpForm({className, history}) {
   const [formData, setFormData] = useState({
@@ -34,6 +34,7 @@ function SignUpForm({className, history}) {
                 dispatch(login(responseObj))
                 history.push('/home')
             } else if (className === 'teachers') {
+                console.log(responseObj)
                 dispatch(addTeacher(responseObj))
                 setFormData({
                     username: '',
@@ -58,7 +59,7 @@ function SignUpForm({className, history}) {
   }
 
   const handleClick = () => {
-    history.push('/home')
+    history.goBack()
   }
 
   return (
@@ -83,9 +84,9 @@ function SignUpForm({className, history}) {
             <Form.Item label='Last name' >
                 <Input name='last_name' id='last_name' value = {formData.last_name} placeholder='Last Name' onChange={onChange} />
             </Form.Item>
-            {className !==  'teachers' ? '' : <Form.Item label='Picture URL' >
+            {/* {className !==  'teachers' ? '' : <Form.Item label='Picture URL' >
                 <Input name='picture_url' id='picture_url' value = {formData.picture_url} placeholder='picture_url' onChange={onChange} />
-            </Form.Item >}
+            </Form.Item >} */}
             {className === 'teachers' ? <Form.Item style={{position:'relative', top:'99%', left:'28%'}}>
                 <Space size='middle'><Button type="primary" htmlType='submit'>Add Teacher</Button> <Button type="primary" onClick={handleClick}>Close</Button></Space>
             </Form.Item>

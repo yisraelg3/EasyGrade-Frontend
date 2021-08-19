@@ -1,26 +1,27 @@
-import React from 'react'
-import { Menu, Button, Space, Divider } from 'antd';
-import { useState } from 'react'
+import React, { useState } from 'react'
+import { Menu, Button } from 'antd'
 import { useSelector } from 'react-redux'
 import TopLevelResource from './TopLevelResource'
 import { Link, withRouter } from 'react-router-dom'
-import { EditTeacherForm } from './EditTeacherForm'
+import SearchBar from '../SharedComponents/SearchBar';
 
 
 function Home() {
     
-    const admin = useSelector(state => state.admin)
+    const user = useSelector(state => state.user)
         const [current, setCurrent] = useState('teachers')
+
+        const [searchTerm, setSearchTerm] = useState('')
 
     const handleClick = (e) => {
         // console.log(e)
         setCurrent(e.key)
+        setSearchTerm('')
     }
 
   return (
       <div className='home-page'>
-        <h1>{`Hello ${admin.username}`}</h1>
-        {/* <hr/> */}
+        <h1>{`Welcome ${user.professional_title}`}</h1>
         <div className='home-containers'>
             <div id='add-buttons'>
                 <h2 className='new-h2'>New</h2>
@@ -33,6 +34,8 @@ function Home() {
                 <Button type='primary' shape='round'size='large' style={{backgroundColor:'darkblue'}}><Link to='/add_year'>New School Year</Link></Button>
             </div>
             <div className='home-menu'>
+                <SearchBar searchTerm={searchTerm} setSearchTerm={setSearchTerm} current={current}/>
+                <br/>
                 <Menu onClick={handleClick} selectedKeys={[current]} mode="horizontal" style={{fontSize:'13pt', justifyContent: 'normal', fontWeight:'bold'}}>
                     <Menu.Item key="teachers">
                         Teachers
@@ -47,9 +50,9 @@ function Home() {
                         Parents
                     </Menu.Item>
                 </Menu>
-                <TopLevelResource currentResource={current}/>
+                <TopLevelResource currentResource={current} searchTerm={searchTerm}/>
             </div>
-        </div>
+          </div>
         </div>
   )
 }

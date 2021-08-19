@@ -3,17 +3,17 @@ import { Form, Input, Button, Select, List, Modal } from 'antd'
 import {useState, useEffect, useMemo} from 'react'
 import { withRouter } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
-import { updateParent } from './AdminSlice'
+import { updateParent } from '../redux/ParentSlice'
 
 function EditParentForm({className, history, routerProps}) {
   const [formData, setFormData] = useState({})
 
   const {id} = routerProps.match.params
-  const parents = useSelector(state => state.admin.parents)
+  const parents = useSelector(state => state.parents)
   const parent = parents.find(parent => parent.id === parseInt(id)) || {username: '', password: ''}
-  const students = useSelector(state => state.admin.students)
-  const token = useSelector(state => state.admin.token)
-  const filteredStudentIds = useMemo(() => students.filter(student => student.parent_id === parseInt(id)), [id, students]).map(student => student.id)
+  const students = useSelector(state => state.students)
+  const token = useSelector(state => state.user.token)
+  const filteredStudentIds = [...new Set(students.filter(student => student.parent_id === parseInt(id)).map(student => student.id))]
   
   useEffect(() => {setFormData({
     username: parent.username,
@@ -82,7 +82,7 @@ function EditParentForm({className, history, routerProps}) {
 // console.log('currentStudents', formData.currentStudents)
   return (
     <>
-        <Modal centered title={`Edit Parent: ${parent.username}`} visible={true} onCancel={()=> history.push('/home')} footer={null}>
+        <Modal centered title={`Edit Parent: ${parent.username}`} visible={true} onCancel={()=>history.goBack()} footer={null}>
         <Form labelCol={{ offset: 2, span: 5}} wrapperCol= {{ span: 15}} onFinish={handleSubmit}>
             <Form.Item label='Username' >
                 <Input name='username' id='username' value = {formData.username} placeholder='Username' onChange={handleChange} />

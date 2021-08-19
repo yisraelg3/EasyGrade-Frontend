@@ -1,30 +1,27 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { Route, Switch, withRouter } from 'react-router-dom'
-import SignUpForm from './AdminComponents/SharedComponents/SignUpForm'
-import LoginForm from './AdminComponents/SharedComponents/LoginForm'
-import SecondLevelResource from './AdminComponents/SecondLevelResource'
+import Home from './AdminComponents/Home'
+import SignUpForm from './AdminComponents/SignUpForm'
+import SecondLevelResource from './SharedComponents/SecondLevelResource'
 import NewClassForm from './AdminComponents/NewClassForm'
 import NewStudentForm from './AdminComponents/NewStudentForm'
+import NewParentForm from './AdminComponents/NewParentForm'
 import EditTeacherForm from './AdminComponents/EditTeacherForm'
 import EditClassForm from './AdminComponents/EditClassForm'
 import EditStudentForm from './AdminComponents/EditStudentForm'
-import Home from './AdminComponents/Home'
-import { useEffect } from 'react'
-import { login } from './AdminComponents/AdminSlice'
-import { useDispatch, useSelector } from 'react-redux'
-import NavBar from './AdminComponents/NavBar'
-import StudentsGrades from './AdminComponents/StudentsGrades'
-import ClassGrades from './AdminComponents/ClassGrades'
-import ParentTeacherHome from './TeacherComponents/ParentTeacherHome'
-import { parentLogin } from './TeacherComponents/ParentSlice'
-import NewParentForm from './AdminComponents/NewParentForm'
 import EditParentForm from './AdminComponents/EditParentForm'
-
+import { login } from './redux/LoginSlice'
+import { useDispatch, useSelector } from 'react-redux'
+import LoginForm from './SharedComponents/LoginForm'
+import NavBar from './SharedComponents/NavBar'
+import StudentsGrades from './SharedComponents/StudentsGrades'
+import ClassGrades from './SharedComponents/ClassGrades'
+import ParentTeacherHome from './SharedComponents/ParentTeacherHome'
 
 function App(props) {
 
   const dispatch = useDispatch()
-  const accountType = useSelector(state => state.admin.accountType)
+  const accountType = useSelector(state => state.user.accountType)
 
   useEffect(() => {
     if (localStorage.token) {
@@ -34,17 +31,13 @@ function App(props) {
     .then(res => res.json())
     .then(res => {
       if (res.user) {
-        if (res.user.account_type === 'Parent') {
-          dispatch(parentLogin(res))
-        } else {
-          dispatch(login(res))
-        }
+        dispatch(login(res))
       } else {
         alert("Please Login")
       }
     })
   }
-  },[dispatch, accountType])
+  },[dispatch])
 
   return (
     <>

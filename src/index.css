@@ -1,6 +1,6 @@
-body {
+html body {
     /* background-image: url('./static/pencil-304559_1280.png'); */
-    background-size:cover;
+    background: #bdb9c9;
     background: transparent\1;
     /* background: transparent; */
     height:100%
@@ -53,7 +53,7 @@ button.log-out-btn {
     right: 0px;
 }
 
-h1 {
+h1, h2 {
     padding-top: 2%;
     text-align:center;
     font-family:'Alegreya'
@@ -85,7 +85,7 @@ div.home-menu {
     /* border:dashed;
     border-width: 4px;
     border-style:groove; */
-    overflow: auto;
+    /* overflow: auto; */
     height:100vh;
     /* margin:0% */
 }
@@ -111,7 +111,7 @@ div.home-menu {
 .logo {
     position: absolute;
     padding-top: 10px;
-
+    /* background-color: */
 }
 
 div.login-form form.ant-form.ant-form-horizontal  {

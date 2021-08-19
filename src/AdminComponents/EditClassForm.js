@@ -1,19 +1,19 @@
 import React from 'react'
 import { Form, Input, Button, Select, List, Modal } from 'antd'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
-import { updateClass } from './AdminSlice'
+import { updateClass } from '../redux/ClassSlice'
 import { withRouter } from 'react-router-dom'
 
 function EditClassForm({routerProps, history}) {
 
     const {id} = routerProps.match.params
-    const klasses = useSelector(state => state.admin.klasses)
-    const teachers = useSelector(state => state.admin.teachers)
-    const students = useSelector(state => state.admin.students) 
-    const grade_categories = useSelector(state => state.admin.grade_categories) || []
-    const token = useSelector(state => state.admin.token)
-    const year = useSelector(state => state.admin.year)
+    const klasses = useSelector(state => state.klasses)
+    const teachers = useSelector(state => state.teachers)
+    const students = useSelector(state => state.students) 
+    const grade_categories = useSelector(state => state.gradeCategories) || []
+    const token = useSelector(state => state.user.token)
+    const year = useSelector(state => state.user.year)
     // console.log(students)
     const dispatch = useDispatch()
 
@@ -23,9 +23,8 @@ function EditClassForm({routerProps, history}) {
     const teacher = teachers.find(teacher => teacher.id === klass.teacher_id) || {id: "No teacher"}
     // debugger
     const class_students = grade_categories.filter(grade_category => grade_category.klass_id === klass.id && grade_category.year === year)
-    console.log(class_students) 
-    const class_students_ids = class_students.map(class_student => class_student.student_id)
-    // console.log("class_students_ids:", class_students_ids)
+    const class_students_ids = [...new Set(class_students.map(class_student => class_student.student_id))]
+
     const [formData, setFormData] = useState({})
     // console.log(formData) 
     useEffect(() => {setFormData({
@@ -112,7 +111,7 @@ function EditClassForm({routerProps, history}) {
 // console.log("currentStudents:", formData.currentStudents)
   return (
       <>
-      <Modal centered title={`Edit Class: ${klass.grade} ${klass.subject}`} visible={true} onCancel={()=> history.push('/home')} footer={null}>
+      <Modal centered title={`Edit Class: ${klass.grade} ${klass.subject}`} visible={true} onCancel={()=>history.goBack()} footer={null}>
       <Form abelCol={{ offset: 2, span: 5}} wrapperCol= {{ span: 15}} onFinish={handleSubmit}>
         <Form.Item label='Grade' >
             <Input id='grade' name='grade' value={formData.grade} onChange={handleChange}/>

@@ -2,15 +2,33 @@ import React from 'react'
 import { Button, List } from 'antd';
 import { useSelector, useDispatch } from 'react-redux'
 import { withRouter } from 'react-router-dom'
-import { deleteTeacher, deleteClass, deleteStudent, deleteParent } from './AdminSlice'
+import { deleteStudent } from '../redux/StudentSlice'
+import { deleteParent } from '../redux/ParentSlice'
+import { deleteClass } from '../redux/ClassSlice'
+import { deleteTeacher } from '../redux/TeacherSlice'
 
-function TopLevelResource({currentResource, history}) {
+function TopLevelResource({currentResource, history, searchTerm}) {
     
-    const state = useSelector(state => state.admin)
-    const token = useSelector(state => state.admin.token) 
-    const accountType = useSelector(state => state.admin.accountType)    
+    const state = useSelector(state => state)
+    const token = useSelector(state => state.user.token) 
+    const accountType = useSelector(state => state.user.accountType)    
 
     const dispatch = useDispatch()
+    
+    const filteredresource = () => {
+        switch (currentResource) {
+            case 'teachers':
+                return state.teachers.filter(row => mapCurrentArray(row).toLowerCase().includes(searchTerm.toLowerCase()))
+            case 'klasses':
+                return state.klasses.filter(row => mapCurrentArray(row).toLowerCase().includes(searchTerm.toLowerCase()))
+            case 'students':
+                return state.students.filter(row => mapCurrentArray(row).toLowerCase().includes(searchTerm.toLowerCase()))
+            case 'parents':
+                return state.parents.filter(row => mapCurrentArray(row).toLowerCase().includes(searchTerm.toLowerCase()))
+            default:
+                return ''
+        }
+    }
 
     const mapCurrentArray = (item) => {
         switch (currentResource) {
@@ -37,7 +55,7 @@ function TopLevelResource({currentResource, history}) {
             case 'students':
                 return dispatch(deleteStudent(id))
             case 'parents':
-                const defaultParent = state.parents.find(parent => parent.username === 'parent')
+                const defaultParent = state.parent.find(parent => parent.username === 'parent')
                 return dispatch(deleteParent({id: id, defaultParent}))
             default: 
                 return ''
@@ -47,7 +65,7 @@ function TopLevelResource({currentResource, history}) {
     const handleDelete = (e) => {
         // console.log(parseInt(e.currentTarget.dataset.id))
         const id = parseInt(e.currentTarget.dataset.id)
-        if (currentResource === 'teachers' && state.klasses.find(klass => klass.teacher_id === id)) {
+        if (currentResource === 'teachers' && state.klass.find(klass => klass.teacher_id === id)) {
             if (!window.confirm("This teacher is still assigned to a class. "+
             "If deleted the class will be \nunassigned and will have no teacher, continue?")) {
                 return
@@ -114,7 +132,7 @@ function TopLevelResource({currentResource, history}) {
 
   return (
     <>
-        <List dataSource={state[currentResource]} size='large' rowKey={item => item.id} renderItem={item => { 
+        <List dataSource={filteredresource()} size='large' rowKey={item => item.id} renderItem={item => { 
             if (item.professional_title !== "No teacher" && item.username !== 'parent') {
             return (
                 <List.Item id={item.id} name={item.id} actions={actions(item)}>

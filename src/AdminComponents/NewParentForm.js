@@ -1,9 +1,8 @@
-import React from 'react'
+import React, {useState} from 'react'
 import { Form, Input, Button, Select, Space } from 'antd'
-import {useState} from 'react'
 import { withRouter } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
-import { addParent } from './AdminSlice'
+import { addParent } from '../redux/ParentSlice'
 
 function NewParentForm({className, history}) {
   const [formData, setFormData] = useState({
@@ -14,8 +13,8 @@ function NewParentForm({className, history}) {
 
   const dispatch = useDispatch()
 
-  const students = useSelector(state => state.admin.students) 
-  const token = useSelector(state => state.admin.token)
+  const students = useSelector(state => state.students) 
+  const token = useSelector(state => state.user.token)
 
   const handleSubmit = () => {
     fetch(`http://localhost:3000/parents`, {
@@ -56,7 +55,7 @@ function NewParentForm({className, history}) {
   }
 
   const handleClick = () => {
-    history.push('/home')
+    history.goBack()
   }
 
   const studentOptions = students.map(student => {
@@ -65,9 +64,9 @@ function NewParentForm({className, history}) {
   })
 
   return (
-    <>
+    <div align='center'>
         <h1>New Parent</h1>
-        <Form labelCol={{ span: 24, offset: 11 }} wrapperCol= {{ span: 7, offset: 8}} onFinish={handleSubmit}>
+        <Form labelCol={{ offset: 3, span: 5}} wrapperCol= {{ span: 9}} onFinish={handleSubmit}>
             <Form.Item label='Username' >
                 <Input name='username' id='username' value = {formData.username} placeholder='Username' onChange={handleChange} />
             </Form.Item>
@@ -79,11 +78,11 @@ function NewParentForm({className, history}) {
                     {studentOptions}
                 </Select>
             </Form.Item>
-            <Form.Item >
+            <Form.Item style={{position:'relative', top:'99%', left: '30%'}}>
                 <Space><Button type="primary" htmlType='submit'>Add Parent</Button><Button type="primary" onClick={handleClick}>Close</Button></Space>
             </Form.Item>
         </Form>
-    </>
+    </div>
   )
 }
 export default withRouter(NewParentForm)

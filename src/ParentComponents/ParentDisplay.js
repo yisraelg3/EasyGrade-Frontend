@@ -5,7 +5,7 @@ import { withRouter} from 'react-router-dom'
 
 function ParentDisplay({history}) {
 
-    const students = useSelector(state => state.parent.students)
+    const students = useSelector(state => state.students)
 
     const handleClick = (item) => {
         history.push(`/students/${item.id}/report_card`)

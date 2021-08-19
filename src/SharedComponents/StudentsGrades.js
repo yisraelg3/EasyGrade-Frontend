@@ -1,9 +1,8 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { Table, Input, Typography, Form, Button, Switch, Space } from 'antd';
 import { useSelector,useDispatch } from 'react-redux'
 import { withRouter} from 'react-router-dom'
-import { useState} from 'react'
-import { updateGradeCategoriesByStudent } from './AdminSlice'
+import { updateGradeCategoriesByStudent } from '../redux/GradeCategorySlice'
 import { DownloadOutlined, ExportOutlined } from '@ant-design/icons';
 import jsPDF from "jspdf";
 import "jspdf-autotable";
@@ -18,31 +17,31 @@ function StudentsGrades({routerProps, history}) {
   const dispatch = useDispatch()
 
   const state = useSelector(state => state)
-  const user = state.parent.accountType !== 'Parent' ? state.admin : state.parent
+  const user = state.user
   const id = user.id
   const accountType = user.accountType
   const professional_title = user.professional_title
   // const class_id = parseInt(routerProps.match.params.class_id)
   const token = user.token
   const year = user.year
-  const gradeCategories = user.grade_categories
 
   const student_id = parseInt(routerProps.match.params.student_id)
   const teacher_id = accountType === 'Teacher' ? id : parseInt(routerProps.match.params.teacher_id)
 
-  const teacher = user.teachers ? user.teachers.find(teacher => teacher_id === teacher.id) : ''
-  const teachersKlassIds = user.klasses.filter(klass => klass.teacher_id === teacher_id).map(klass => klass.id)
+  const teacher = state.teachers ? state.teachers.find(teacher => teacher_id === teacher.id) : ''
+  const teachersKlassIds = state.klasses.filter(klass => klass.teacher_id === teacher_id).map(klass => klass.id)
 
   const teacherName = accountType === 'Teacher' ? professional_title : teacher ? teacher.professional_title : '' 
 
   
   // const studentGradesForIndClass = gradeCategories.filter(grade => grade.student_id === student_id && grade.klass_id === class_id && grade.year === year)
-  const studentGradesForAllClasses = gradeCategories.filter(grade => grade.student_id === student_id && grade.year === year)
+  const studentGradesForAllClasses = state.gradeCategories.filter(grade => grade.student_id === student_id && grade.year === year)
   console.log(studentGradesForAllClasses)
 
   const name = studentGradesForAllClasses[0] ? studentGradesForAllClasses[0].name : ''
+  const grade = studentGradesForAllClasses[0] ? studentGradesForAllClasses[0].grade : ''
   
-  const years = numericSort([...new Set(gradeCategories.map(gc => gc.year))])
+  const years = numericSort([...new Set(state.gradeCategories.map(gc => gc.year))])
   let Semesters = numericSort([...new Set(studentGradesForAllClasses.map(grade => grade.semester))]) || []
 
   const lastYear = Math.max(...years)
@@ -277,9 +276,12 @@ const exportPDF = (save=true) => {
   return (
     <div className='grade-page'>
     {teacher_id ? <><h1>{teacherName}</h1>
+    <h2>{grade}</h2>
     <h2>{name}</h2>
     <h4 className='belongsTo'>Subjects in this color indicate that {teacherName} teaches that subject.</h4></> 
-    :  <h1>{name}</h1>}
+    :<>
+    <h2>{grade}</h2>  
+    <h1>{name}</h1></>}
     {accountType === 'Admin' ? <><Button onClick={addSemester}>Add new Semester</Button> {newSemester.length > 0 ? <Button onClick={removeSemester}>Remove new Semester</Button> : ''} </>:''}
     <Space className='pdf-buttons'><Button type='primary' shape='round' onClick={() => exportPDF()} icon={<DownloadOutlined/>}>PDF</Button> <Button type='primary' shape='round' onClick={() => exportPDF(false)} icon={<ExportOutlined />}>PDF</Button></Space>
     <Form onFinish={handleFinish} >

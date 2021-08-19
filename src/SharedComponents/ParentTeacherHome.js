@@ -1,28 +1,31 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { Menu } from 'antd';
-import { useState } from 'react'
 import { useSelector } from 'react-redux'
 import TopLevelResource from '../AdminComponents/TopLevelResource'
 import { withRouter } from 'react-router-dom'
-import ParentDisplay from './ParentDisplay'
+import ParentDisplay from '../ParentComponents/ParentDisplay'
+import SearchBar from '../SharedComponents/SearchBar'
 
 
 function ParentTeacherHome() {
     
     const state = useSelector(state => state)
-    const user = state.parent.accountType !== 'Parent' ? state.admin : state.parent 
+    const user = state.user 
 // debugger
         const [current, setCurrent] = useState('students')
+        const [searchTerm, setSearchTerm] = useState('')
 
     const handleClick = (e) => {
         // console.log(e)
         setCurrent(e.key)
+        setSearchTerm('')
     }
 
   return (
       <>
-      <h1>{`Hello ${user.username}`}</h1>
-      
+      <h1>{`Hello ${user.professional_title}`}</h1>
+      <SearchBar searchTerm={searchTerm} setSearchTerm={setSearchTerm} current={current}/>
+                <br/>
     {user.accountType !== 'Parent' ? <>
     <Menu onClick={handleClick} selectedKeys={[current]} mode="horizontal">
      <Menu.Item key="klasses">
@@ -32,7 +35,7 @@ function ParentTeacherHome() {
             Students
         </Menu.Item>
     </Menu> 
-    <TopLevelResource currentResource={current}/>
+    <TopLevelResource currentResource={current} searchTerm={searchTerm}/>
     </> : ''}
     <ParentDisplay/>
     </>

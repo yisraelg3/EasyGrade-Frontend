@@ -1,16 +1,15 @@
-import React from 'react'
-import { Form, Input, Button, DatePicker, Select, Divider, Space } from 'antd'
+import React, {useState} from 'react'
+import { Form, Input, Button, Select, Divider, Space } from 'antd'
 import moment from 'moment'
-import {useState} from 'react'
 import { withRouter } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
-import {addStudent} from './AdminSlice'
+import {addStudent} from '../redux/StudentSlice'
 
 function NewStudentForm({className, history}) {
 
-    const classes = useSelector(state => state.admin.klasses)
-    const token = useSelector(state => state.admin.token)
-    const year = useSelector(state => state.admin.year) 
+    const classes = useSelector(state => state.klasses)
+    const token = useSelector(state => state.user.token)
+    const year = useSelector(state => state.user.year) 
 
     const classesDisplay =
         classes.length > 0 ? 
@@ -63,12 +62,12 @@ function NewStudentForm({className, history}) {
         })
     }
 
-    const dateChange = (moment, string) =>{
-        setFormData({
-            ...formData,
-            birth_date: moment
-        })
-    }
+    // const dateChange = (moment, string) =>{
+    //     setFormData({
+    //         ...formData,
+    //         birth_date: moment
+    //     })
+    // }
 
     const classChange = (e) => {
         // console.log(e)
@@ -79,10 +78,10 @@ function NewStudentForm({className, history}) {
     }
 
     const handleClick = () => {
-        history.push('/home')
+        history.goBack()
       }
 
-    const customFormat = value => value.format('MM/DD/YYYY')
+    // const customFormat = value => value.format('MM/DD/YYYY')
     
     const options = classesDisplay.map(klass => <Select.Option key={klass.id} value={klass.id}>{klass.name}</Select.Option>)
 

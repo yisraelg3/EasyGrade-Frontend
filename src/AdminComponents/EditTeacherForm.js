@@ -2,14 +2,14 @@ import React from 'react'
 import { Form, Input, Button, Modal } from 'antd'
 import { useState, useEffect } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
-import { updateTeacher } from './AdminSlice'
+import { updateTeacher } from '../redux/TeacherSlice'
 import { withRouter } from 'react-router-dom'
 
 function EditTeacherForm({routerProps, history, setEditTeacher}) {
 
     const {id} = routerProps.match.params
-    const state = useSelector(state => state.admin)
-    const token = useSelector(state => state.admin.token)
+    const state = useSelector(state => state)
+    const token = useSelector(state => state.user.token)
 
     const dispatch = useDispatch()
 
@@ -79,9 +79,9 @@ function EditTeacherForm({routerProps, history, setEditTeacher}) {
                 <Form.Item label='Last name' >
                     <Input name='last_name' id='last_name' value={formData.last_name} placeholder='Last name' onChange={handleChange} />
                 </Form.Item>
-                <Form.Item label='Picture URL' >
+                {/* <Form.Item label='Picture URL' >
                     <Input name='picture_url' id='picture_url' value={formData.picture_url} placeholder='Picture URL' onChange={handleChange} />
-                </Form.Item>
+                </Form.Item> */}
                 <Form.Item style={{position:'relative', top:'99%', left: '75%'}}>
                         <Button type="primary" htmlType='submit'>Update</Button>
                 </Form.Item>

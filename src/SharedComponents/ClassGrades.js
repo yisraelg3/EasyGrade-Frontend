@@ -3,7 +3,7 @@ import { Table, Input, Button, Form,Typography, Switch, Space } from 'antd';
 import { useSelector, useDispatch } from 'react-redux'
 import {numericSort} from './StudentsGrades'
 import { useState} from 'react'
-import { updateGradeCategoriesByClass } from './AdminSlice'
+import { updateGradeCategoriesByClass } from '../redux/GradeCategorySlice'
 import { DownloadOutlined, ExportOutlined } from '@ant-design/icons';
 import jsPDF from "jspdf";
 import "jspdf-autotable";
@@ -12,11 +12,11 @@ export default function ClassGrades({routerProps}) {
 
   const dispatch = useDispatch()
 
-  const classes = useSelector(state => state.admin.klasses)
-  const token = useSelector(state => state.admin.token)
-  const year = useSelector(state => state.admin.year)
-  const accountType = useSelector(state => state.admin.accountType)
-  const gradeCategories = useSelector(state => state.admin.grade_categories)
+  const classes = useSelector(state => state.klasses)
+  const token = useSelector(state => state.user.token)
+  const year = useSelector(state => state.user.year)
+  const accountType = useSelector(state => state.user.accountType)
+  const gradeCategories = useSelector(state => state.gradeCategories)
 
   const class_id = parseInt(routerProps.match.params.class_id)
 

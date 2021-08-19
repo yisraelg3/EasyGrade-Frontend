@@ -1,10 +1,8 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { Link, Redirect, withRouter } from 'react-router-dom'
 import { Form, Input, Button, Radio } from 'antd'
-import { useState } from 'react'
 import { useDispatch} from 'react-redux'
-import { login } from '../AdminSlice'
-import { parentLogin } from '../../TeacherComponents/ParentSlice'
+import { login } from '../redux/LoginSlice'
 
 function LoginForm({history}) {
 
@@ -34,11 +32,7 @@ function LoginForm({history}) {
         if (res.user) {
           console.log(res)
             localStorage.token = res.token
-            if (res.user.account_type === 'Parent') {
-              dispatch(parentLogin(res))
-            } else {
-              dispatch(login(res))
-            }
+            dispatch(login(res))
             history.push('/home')
         } else {
             alert(res.errors)
@@ -51,7 +45,7 @@ function LoginForm({history}) {
     <div align="center">
       {localStorage.token ? <Redirect to='/home'/> : ''}
       <h1 >Login</h1>
-      <Button><Link to='/admin_signup'>{"Click here to Register new Admininstrator"}</Link></Button>
+      <Button><Link to='/admin_signup'>{"Click here to Register a new Admininstrator"}</Link></Button>
       <div className='login-form'>
       <Form  onFinish={handleSubmit}>
           <Form.Item label='Username'>

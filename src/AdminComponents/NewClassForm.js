@@ -1,15 +1,15 @@
-import React from 'react'
+import React, {useState} from 'react'
 import { Form, Input, Button, Select, Space } from 'antd'
-import {useState} from 'react'
 import { withRouter } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
-import {addClass} from './AdminSlice'
+import {addClass} from '../redux/ClassSlice'
 
 function NewClassForm({history}) {
 
-    const teachers = useSelector(state => state.admin.teachers)
-    const students = useSelector(state => state.admin.students) 
-    const year = useSelector(state => state.admin.year) 
+    const teachers = useSelector(state => state.teachers)
+    const students = useSelector(state => state.students) 
+    const year = useSelector(state => state.user.year) 
+    const token = useSelector(state => state.user.token) 
 
     const [formData, setFormData] = useState({
         subject: '',
@@ -29,7 +29,7 @@ function NewClassForm({history}) {
         fetch(`http://localhost:3000/klasses`, {
             method: 'POST',
             headers: {"Content-type":"application/json", 
-            "Authorization":`"Bearer ${localStorage.token}"`},
+            "Authorization":`"Bearer ${token}"`},
             body: JSON.stringify(formData)
         })
         .then(res => res.json())
@@ -52,7 +52,7 @@ function NewClassForm({history}) {
       }
       
       const handleClick = () => {
-        history.push('/home')
+        history.goBack()
       }
     
       const handleChange = (e) => {
@@ -103,9 +103,10 @@ function NewClassForm({history}) {
     })
 
   return (
-      <>
+      <div align='center'>
       <h1>New Class</h1>
-    <Form labelCol={{ span: 24, offset: 11 }} wrapperCol= {{ span: 7, offset: 8}} onFinish={handleSubmit}>
+      <br/>
+    <Form labelCol={{ offset: 3, span: 5}} wrapperCol= {{ span: 9}} onFinish={handleSubmit}>
         <Form.Item label='Grade' >
             <Input id='grade' name='grade' value={formData.grade} onChange={handleChange}/>
         </Form.Item>
@@ -122,7 +123,7 @@ function NewClassForm({history}) {
             {studentOptions}
             </Select>
         </Form.Item>
-        <Form.Item >
+        <Form.Item style={{position:'relative', top:'99%', left: '28%'}}>
                 <Space><Button type="primary" htmlType='submit'>Add Class</Button>  <Button type="primary" onClick={handleClick}>Close</Button></Space>
         </Form.Item>
     </Form>
@@ -135,7 +136,7 @@ function NewClassForm({history}) {
             </List.Item>
         )
     }}/>  */}
-    </>
+    </div>
   )
 }
 export default withRouter(NewClassForm)

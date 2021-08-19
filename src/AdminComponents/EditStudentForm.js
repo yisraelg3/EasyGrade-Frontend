@@ -1,19 +1,19 @@
 import React from 'react'
-import { Form, Input, Button, Select, DatePicker, List, Divider, Modal } from 'antd'
+import { Form, Input, Button, Select, List, Divider, Modal } from 'antd'
 import { useState, useEffect } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
-import { updateStudent } from './AdminSlice'
+import { updateStudent } from '../redux/StudentSlice'
 import { withRouter } from 'react-router-dom'
 import moment from 'moment'
 
 function EditStudentForm({routerProps, history}) {
 
     const {id} = routerProps.match.params
-    const classes = useSelector(state => state.admin.klasses)
-    const students = useSelector(state => state.admin.students) 
-    const grade_categories = useSelector(state => state.admin.grade_categories) || []
-    const token = useSelector(state => state.admin.token)
-    const year = useSelector(state => state.admin.year)
+    const classes = useSelector(state => state.klasses)
+    const students = useSelector(state => state.students) 
+    const grade_categories = useSelector(state => state.gradeCategories) || []
+    const token = useSelector(state => state.user.token)
+    const year = useSelector(state => state.user.year)
     // console.log(students)
     const dispatch = useDispatch()
 
@@ -113,7 +113,7 @@ function EditStudentForm({routerProps, history}) {
 
   return (
       <>
-      <Modal centered title={`Edit Student: ${student.first_name} ${student.last_name}`} visible={true} onCancel={()=> history.push('/home')} footer={null}>
+      <Modal centered title={`Edit Student: ${student.first_name} ${student.last_name}`} visible={true} onCancel={()=>history.goBack()} footer={null}>
         <Form labelCol={{ offset: 2, span: 5}} wrapperCol= {{ span: 15}} onFinish={handleSubmit}>
                 <Form.Item label='First name'>
                     <Input name='first_name' id='first_name' value = {formData.first_name} placeholder='First Name' onChange={handleChange} />
@@ -125,9 +125,9 @@ function EditStudentForm({routerProps, history}) {
                 {/* <Form.Item label='Birth Date'>
                     <DatePicker name='birth_date' id='birth_date' value={formData.birth_date} onChange={dateChange} format={customFormat}/>
                 </Form.Item> */}
-                <Form.Item label='Picture URL' >
+                {/* <Form.Item label='Picture URL' >
                     <Input name='picture_url' id='picture_url' value = {formData.picture_url} placeholder='picture_url' onChange={handleChange} />
-                </Form.Item>
+                </Form.Item> */}
                 <Form.Item label='Add Classes' >
                     <Select allowClear mode='multiple' name='classes' id='classes' value={formData.classes} placeholder='Select classes' onChange={classChange}>
                     {options}
@@ -139,7 +139,7 @@ function EditStudentForm({routerProps, history}) {
             </Form>
             <List header= 'Current Classes:' dataSource={formData.currentClasses} size='small' rowKey={item => item} renderItem={currentClass => { 
             const klass = classes.find(klass => klass.id === currentClass)
-            
+            console.log(klass)
                 return (
                     <List.Item id={klass.id} name={klass.id} actions={[<Button data-id={klass.id} onClick={handleDelete} key="delete">delete</Button>]}>
                         {`${klass.grade} ${klass.subject}`}

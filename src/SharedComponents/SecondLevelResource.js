@@ -1,20 +1,23 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { List, Menu, Button } from 'antd';
-import { withRouter } from 'react-router-dom'
-import {useState} from 'react'
+import { withRouter, Link } from 'react-router-dom'
 import { useSelector, useDispatch } from 'react-redux'
-import { deleteTeacher, deleteClass, deleteStudent } from './AdminSlice'
+import { deleteClass } from '../redux/ClassSlice'
+import { deleteStudent } from '../redux/StudentSlice'
+import { deleteTeacher } from '../redux/TeacherSlice'
+import SearchBar from './SearchBar';
 
 function SecondLevelResource({resourceName, routerProps, history }) {
     // console.log(resourceName)
     
-    const state = useSelector(state => state.admin)
-    const year = useSelector(state => state.admin.year)
+    const state = useSelector(state => state)
+    const year = useSelector(state => state.user.year)
     const {id} = routerProps.match.params
     // const {teacher_id} = routerProps.match.params
     const [current, setCurrent] = useState('students')
+    const [searchTerm, setSearchTerm] = useState('')
 
-    const token = useSelector(state => state.admin.token)    
+    const token = useSelector(state => state.user.token)    
 
     const dispatch = useDispatch()
 
@@ -30,6 +33,21 @@ function SecondLevelResource({resourceName, routerProps, history }) {
 
     const resourceTitle = listForTitle().find(resource => resource.id === parseInt(routerProps.match.params.id))
     
+    const filteredResource = () => {
+        if (resourceName === 'teachers') {
+            switch (current) {
+                case 'klasses':
+                    return chooseResource()[current].filter(row => mapCurrentArray(row).toLowerCase().includes(searchTerm.toLowerCase()))
+                case 'students':
+                    return chooseResource()[current].filter(row => mapCurrentArray(row).toLowerCase().includes(searchTerm.toLowerCase()))
+                default:
+                    return ''
+            }
+        } else if (resourceName === 'parents') {
+            return chooseResource().filter(row => (`${row.first_name} ${row.last_name}`).toLowerCase().includes(searchTerm.toLowerCase()))
+        }
+    }
+
     const mapCurrentArray = (item) => {
         switch (current) {
             case 'klasses':
@@ -130,7 +148,7 @@ function SecondLevelResource({resourceName, routerProps, history }) {
             case 'teachers':
                 const teachersClasses = state.klasses.filter(klass => klass.teacher_id === parseInt(routerProps.match.params.id))
                 const klassIds = teachersClasses.map(klass => klass.id)
-                const teachersClassesPerYearIds = state.grade_categories.map(gradeCategory => {
+                const teachersClassesPerYearIds = state.gradeCategories.map(gradeCategory => {
                     if (klassIds.includes(gradeCategory.klass_id) && gradeCategory.year === year) {
                         return gradeCategory.klass_id
                     } else {
@@ -139,7 +157,7 @@ function SecondLevelResource({resourceName, routerProps, history }) {
                 })
                 const teachersClassesPerYear = state.klasses.filter(klass => teachersClassesPerYearIds.includes(klass.id))
 
-                const filteredGradeCategoryStudentIds = state.grade_categories.map(gradeCategory => {
+                const filteredGradeCategoryStudentIds = state.gradeCategories.map(gradeCategory => {
                     if (klassIds.includes(gradeCategory.klass_id) && gradeCategory.year === year) {
                         return gradeCategory.student_id
                     } else {
@@ -149,7 +167,7 @@ function SecondLevelResource({resourceName, routerProps, history }) {
                 // console.log(classStudents)
                 return {klasses: teachersClassesPerYear, students: classStudents}
             case 'students':
-                const filteredGradeCategories = state.grade_categories.filter(gradeCategory => gradeCategory.student_id === parseInt(routerProps.match.params.id) && gradeCategory.year === year)
+                const filteredGradeCategories = state.gradeCategories.filter(gradeCategory => gradeCategory.student_id === parseInt(routerProps.match.params.id) && gradeCategory.year === year)
                 const classIds = filteredGradeCategories.map(gradeCategory => gradeCategory.klass_id)
                 const studentsClasses = state.klasses.filter(klass => classIds.includes(klass.id))
                 return studentsClasses
@@ -164,6 +182,7 @@ function SecondLevelResource({resourceName, routerProps, history }) {
     const handleClick = (e) => {
         // console.log(e)
         setCurrent(e.key)
+        setSearchTerm('')
     }
     
   return (
@@ -171,9 +190,23 @@ function SecondLevelResource({resourceName, routerProps, history }) {
         {resourceName === 'teachers' ?
         <>
             <h1>Teachers</h1>
+            <div className='home-containers'>
+            <div id='add-buttons'>
+                <h2 className='new-h2'>New</h2>
+                <Button type='primary' shape='round'size='large'><Link to='/add_teacher'>New Teacher</Link></Button>
+                <Button type='primary' shape='round'size='large'><Link to='/add_class'>New Class</Link></Button>
+                <Button type='primary' shape='round'size='large'><Link to='/add_student'>New Student</Link></Button>
+                <Button type='primary' shape='round'size='large'><Link to='/add_parent'>New Parent</Link></Button>
+                <span style={{borderTop:'solid', borderStyle:'groove'}}></span>
+                <Button type='primary' shape='round'size='large' style={{backgroundColor:'blueviolet'}}><Link to='/add_semester'>New Semester</Link></Button>
+                <Button type='primary' shape='round'size='large' style={{backgroundColor:'darkblue'}}><Link to='/add_year'>New School Year</Link></Button>
+            </div>
+            <div className='home-menu'>
             {resourceTitle ? <><h2>{resourceTitle.professional_title}</h2> 
             <br/> </>: ''}
-            <Menu onClick={handleClick} selectedKeys={[current]} mode="horizontal">
+            <span style={{paddingRight:'200px'}}><SearchBar searchTerm={searchTerm} setSearchTerm={setSearchTerm} /></span>
+            <br/>
+            <Menu onClick={handleClick} selectedKeys={[current]} mode="horizontal" style={{fontSize:'13pt', justifyContent: 'normal', fontWeight:'bold'}}>
                 <Menu.Item key="students">
                     Students
                 </Menu.Item>
@@ -182,13 +215,15 @@ function SecondLevelResource({resourceName, routerProps, history }) {
                 </Menu.Item>
             </Menu> 
             
-            <List dataSource={chooseResource()[current]} size='large' rowKey={item => item.id} renderItem={item => { 
+            <List dataSource={filteredResource()} size='large' rowKey={item => item.id} renderItem={item => { 
                 return (
                     <List.Item id={item.id} name={item.id} actions={actions(item)}>
                         {mapCurrentArray(item)}
                     </List.Item>
                 )
             }}/>
+            </div>
+            </div>
         </>
     :
         <>
@@ -196,7 +231,7 @@ function SecondLevelResource({resourceName, routerProps, history }) {
             {resourceTitle ? <><h1>Parent: {resourceTitle.username}</h1> 
             <br/>
             <h2>Students</h2></> : ''}
-            <List dataSource={chooseResource()} size='large' rowKey={item => item.id} renderItem={item => { 
+            <List dataSource={filteredResource()} size='large' rowKey={item => item.id} renderItem={item => { 
                 return (
                     <List.Item id={item.id} name={item.id} actions={actions(item)}>
                         {`${item.first_name} ${item.last_name}`}
