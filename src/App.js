@@ -17,6 +17,7 @@ import NavBar from './SharedComponents/NavBar'
 import StudentsGrades from './SharedComponents/StudentsGrades'
 import ClassGrades from './SharedComponents/ClassGrades'
 import ParentTeacherHome from './SharedComponents/ParentTeacherHome'
+import NewTeacherForm from './AdminComponents/NewTeacherForm'
 
 function App(props) {
 
@@ -25,7 +26,7 @@ function App(props) {
 
   useEffect(() => {
     if (localStorage.token) {
-    fetch(`http://localhost:3000/me`, {
+    fetch(`https://easygrade-backend.herokuapp.com/me`, {
       headers: {"authorization": `"Bearer ${localStorage.token}"`}
     })
     .then(res => res.json())
@@ -52,7 +53,7 @@ function App(props) {
         <SignUpForm className='admins'/>
       </Route>
       <Route exact path='/add_teacher'>
-        <SignUpForm className='teachers'/>
+        <NewTeacherForm className='teachers'/>
       </Route>
       <Route exact path='/add_student'>
         <NewStudentForm className='students'/>

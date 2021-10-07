@@ -72,7 +72,7 @@ function TopLevelResource({currentResource, history, searchTerm}) {
                 return
             }
         }
-        fetch(`http://localhost:3000/${currentResource}/${id}`, {
+        fetch(`https://easygrade-backend.herokuapp.com/${currentResource}/${id}`, {
             method: 'DELETE',
             headers: {
                 "Content-type":"application/json",

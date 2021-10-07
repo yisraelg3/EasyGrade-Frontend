@@ -82,7 +82,7 @@ export default function ClassGrades({routerProps}) {
       //   }
       //   return submitArray
       // }
-      fetch('http://localhost:3000/grade_categories/update_class_grades',{
+      fetch('https://easygrade-backend.herokuapp.com/grade_categories/update_class_grades',{
         method: 'PATCH',
         headers: {
           "Content-type":"application/json",

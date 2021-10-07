@@ -109,7 +109,7 @@ function StudentsGrades({routerProps, history}) {
       //   return submitArray
       // }
       // console.log(submitData())
-      fetch('http://localhost:3000/grade_categories/update_student_grades',{
+      fetch('https://easygrade-backend.herokuapp.com/grade_categories/update_student_grades',{
         method: 'PATCH',
         headers: {
           "Content-type":"application/json",

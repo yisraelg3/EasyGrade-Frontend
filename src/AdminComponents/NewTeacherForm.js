@@ -1,8 +1,8 @@
 import React, {useState} from 'react'
-import { Form, Input, Button, Divider } from 'antd'
-import { withRouter, Link } from 'react-router-dom'
+import { Form, Input, Button, Divider, Space } from 'antd'
+import { withRouter } from 'react-router-dom'
 import { useDispatch } from 'react-redux'
-import { login } from '../redux/LoginSlice'
+import { addTeacher } from '../redux/TeacherSlice'
 
 function SignUpForm({className, history}) {
   const [formData, setFormData] = useState({
@@ -15,19 +15,28 @@ function SignUpForm({className, history}) {
   })
 
   const dispatch = useDispatch()
+  
   const handleSubmit = () => {
-    fetch(`https://easygrade-backend.herokuapp.com/admins`, {
+    fetch(`https://easygrade-backend.herokuapp.com/teachers`, {
         method: 'POST',
-        headers: {"Content-type":"application/json"},
+        headers: {"Content-type":"application/json", 
+        "Authorization":`Bearer ${localStorage.token}`},
         body: JSON.stringify(formData)
     })
     .then(res => res.json())
     .then(responseObj => {
         console.log(responseObj)
         if (responseObj.id || responseObj.user) {
-            localStorage.token = responseObj.token
-            dispatch(login(responseObj))
-            history.push('/home')
+            console.log(responseObj)
+            dispatch(addTeacher(responseObj))
+            setFormData({
+                username: '',
+                password: '',
+                picture_url: '',
+                title: '',
+                first_name: '',
+                last_name: ''
+            })
         } else {
             alert(responseObj.errors)
         }
@@ -41,11 +50,13 @@ function SignUpForm({className, history}) {
       })
   }
 
+  const handleClick = () => {
+    history.goBack()
+  }
+
   return (
     <div align="center">
-        <h1>New Administrator</h1>
-        <Button><Link to='/'>Click here to return to Login</Link></Button>
-        <br/> <br/>
+        <br/><h1>New Teacher</h1><br/>
         <Form labelCol={{offset: 2, span: 5 }} wrapperCol= {{ span: 9}} onFinish={handleSubmit}>
             <Form.Item label='Username' >
                 <Input name='username' id='username' value = {formData.username} placeholder='Username' onChange={onChange} />
@@ -63,8 +74,11 @@ function SignUpForm({className, history}) {
             <Form.Item label='Last name' >
                 <Input name='last_name' id='last_name' value = {formData.last_name} placeholder='Last Name' onChange={onChange} />
             </Form.Item>
-             <Form.Item style={{position:'relative', top:'99%', left: '30%'}}>
-                <Button type="primary" htmlType='submit'>Sign up</Button>
+            {/* <Form.Item label='Picture URL' >
+                <Input name='picture_url' id='picture_url' value = {formData.picture_url} placeholder='picture_url' onChange={onChange} />
+            </Form.Item >*/}
+            <Form.Item style={{position:'relative', top:'99%', left:'28%'}}>
+                <Space size='middle'><Button type="primary" htmlType='submit'>Add Teacher</Button> <Button type="primary" onClick={handleClick}>Close</Button></Space>
             </Form.Item>
         </Form>
     </div>

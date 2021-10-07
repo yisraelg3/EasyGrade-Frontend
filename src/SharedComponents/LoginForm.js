@@ -22,7 +22,7 @@ function LoginForm({history}) {
   }
 
   const handleSubmit = () => {
-    fetch(`http://localhost:3000/${formData.accountType}_login`, {
+    fetch(`https://easygrade-backend.herokuapp.com/${formData.accountType}_login`, {
         method: 'POST',
         headers: {"Content-type":"application/json"},
         body: JSON.stringify(formData)

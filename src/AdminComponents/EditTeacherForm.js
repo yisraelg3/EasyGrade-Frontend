@@ -42,7 +42,7 @@ function EditTeacherForm({routerProps, history, setEditTeacher}) {
     }           
 
     const handleSubmit = (e) => {
-        fetch(`http://localhost:3000/teachers/${id}`, {
+        fetch(`https://easygrade-backend.herokuapp.com/teachers/${id}`, {
             method: 'PATCH',
             headers: {
                 "Content-type":"application/json",

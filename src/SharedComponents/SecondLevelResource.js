@@ -78,7 +78,7 @@ function SecondLevelResource({resourceName, routerProps, history }) {
                 return
             }
         }
-        fetch(`http://localhost:3000/${resourceName}/${id}`, {
+        fetch(`https://easygrade-backend.herokuapp.com/${resourceName}/${id}`, {
             method: 'DELETE',
             headers: {
                 "Content-type":"application/json",

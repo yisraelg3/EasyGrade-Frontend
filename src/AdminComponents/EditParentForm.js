@@ -27,7 +27,7 @@ function EditParentForm({className, history, routerProps}) {
   const handleSubmit = () => {
       const defaultParent = parents.find(parent => parent.username === 'parent')
       const {username, password, currentStudents} = formData
-    fetch(`http://localhost:3000/parents/${id}`, {
+    fetch(`https://easygrade-backend.herokuapp.com/parents/${id}`, {
         method: 'PATCH',
         headers: {"Content-type":"application/json", "Authorization":`Bearer ${token}`},
         body: JSON.stringify({username, password, currentStudents})

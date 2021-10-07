@@ -29,7 +29,7 @@ function NewStudentForm({className, history}) {
 
     const handleSubmit = () => {
         console.log(formData)
-        fetch(`http://localhost:3000/students`, {
+        fetch(`https://easygrade-backend.herokuapp.com/students`, {
             method: 'POST',
             headers: {"Content-type":"application/json", 
             "Authorization":`Bearer ${token}`},

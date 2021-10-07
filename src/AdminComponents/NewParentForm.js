@@ -17,7 +17,7 @@ function NewParentForm({className, history}) {
   const token = useSelector(state => state.user.token)
 
   const handleSubmit = () => {
-    fetch(`http://localhost:3000/parents`, {
+    fetch(`https://easygrade-backend.herokuapp.com/parents`, {
         method: 'POST',
         headers: {"Content-type":"application/json", "Authorization":`Bearer ${token}`},
         body: JSON.stringify(formData)

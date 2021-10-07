@@ -50,7 +50,7 @@ function EditClassForm({routerProps, history}) {
 
     const handleSubmit = (e) => {
         const {subject, grade, locked, teacher_id, gradeCategories, currentStudents} = formData
-        fetch(`http://localhost:3000/klasses/${id}`, {
+        fetch(`https://easygrade-backend.herokuapp.com/klasses/${id}`, {
             method: 'PATCH',
             headers: {
                 "Content-type":"application/json",

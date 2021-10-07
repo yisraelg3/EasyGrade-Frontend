@@ -26,7 +26,7 @@ function NewClassForm({history}) {
     const handleSubmit = () => {
         // const {subject, grade, locked, teacher_id, gradeCategories} = formData
         // const newVals = values.gradeCategories ? [gradeCategories, ...values.gradeCategories] : []
-        fetch(`http://localhost:3000/klasses`, {
+        fetch(`https://easygrade-backend.herokuapp.com/klasses`, {
             method: 'POST',
             headers: {"Content-type":"application/json", 
             "Authorization":`"Bearer ${token}"`},
