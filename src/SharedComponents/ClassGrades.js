@@ -5,6 +5,7 @@ import {numericSort} from './StudentsGrades'
 import { useState} from 'react'
 import { updateGradeCategoriesByClass } from '../redux/GradeCategorySlice'
 import { DownloadOutlined, ExportOutlined } from '@ant-design/icons';
+import apiHelper from '../api'
 import jsPDF from "jspdf";
 import "jspdf-autotable";
 
@@ -82,7 +83,7 @@ export default function ClassGrades({routerProps}) {
       //   }
       //   return submitArray
       // }
-      fetch('https://easygrade-backend.herokuapp.com/grade_categories/update_class_grades',{
+      fetch(`${apiHelper()}/grade_categories/update_class_grades`,{
         method: 'PATCH',
         headers: {
           "Content-type":"application/json",

@@ -6,6 +6,7 @@ import { deleteStudent } from '../redux/StudentSlice'
 import { deleteParent } from '../redux/ParentSlice'
 import { deleteClass } from '../redux/ClassSlice'
 import { deleteTeacher } from '../redux/TeacherSlice'
+import apiHelper from '../api'
 
 function TopLevelResource({currentResource, history, searchTerm}) {
     
@@ -72,7 +73,7 @@ function TopLevelResource({currentResource, history, searchTerm}) {
                 return
             }
         }
-        fetch(`https://easygrade-backend.herokuapp.com/${currentResource}/${id}`, {
+        fetch(`${apiHelper()}/${currentResource}/${id}`, {
             method: 'DELETE',
             headers: {
                 "Content-type":"application/json",

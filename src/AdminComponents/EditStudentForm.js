@@ -5,6 +5,7 @@ import { useSelector, useDispatch } from 'react-redux'
 import { updateStudent } from '../redux/StudentSlice'
 import { withRouter } from 'react-router-dom'
 import moment from 'moment'
+import apiHelper from '../api'
 
 function EditStudentForm({routerProps, history}) {
 
@@ -53,7 +54,7 @@ function EditStudentForm({routerProps, history}) {
 
     const handleSubmit = (e) => {
         const {first_name, last_name, birth_date, parent_id, picture_url, currentClasses} = formData
-        fetch(`https://easygrade-backend.herokuapp.com/students/${id}`, {
+        fetch(`${apiHelper()}/students/${id}`, {
             method: 'PATCH',
             headers: {
                 "Content-type":"application/json",

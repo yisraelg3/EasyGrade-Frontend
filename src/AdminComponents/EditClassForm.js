@@ -4,6 +4,7 @@ import { useState, useEffect, useMemo } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import { updateClass } from '../redux/ClassSlice'
 import { withRouter } from 'react-router-dom'
+import apiHelper from '../api'
 
 function EditClassForm({routerProps, history}) {
 
@@ -50,7 +51,7 @@ function EditClassForm({routerProps, history}) {
 
     const handleSubmit = (e) => {
         const {subject, grade, locked, teacher_id, gradeCategories, currentStudents} = formData
-        fetch(`https://easygrade-backend.herokuapp.com/klasses/${id}`, {
+        fetch(`${apiHelper()}/klasses/${id}`, {
             method: 'PATCH',
             headers: {
                 "Content-type":"application/json",

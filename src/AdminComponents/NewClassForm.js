@@ -3,6 +3,7 @@ import { Form, Input, Button, Select, Space } from 'antd'
 import { withRouter } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
 import {addClass} from '../redux/ClassSlice'
+import apiHelper from '../api'
 
 function NewClassForm({history}) {
 
@@ -26,7 +27,7 @@ function NewClassForm({history}) {
     const handleSubmit = () => {
         // const {subject, grade, locked, teacher_id, gradeCategories} = formData
         // const newVals = values.gradeCategories ? [gradeCategories, ...values.gradeCategories] : []
-        fetch(`https://easygrade-backend.herokuapp.com/klasses`, {
+        fetch(`${apiHelper()}/klasses`, {
             method: 'POST',
             headers: {"Content-type":"application/json", 
             "Authorization":`"Bearer ${token}"`},

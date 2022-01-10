@@ -3,6 +3,7 @@ import { Form, Input, Button, Divider } from 'antd'
 import { withRouter, Link } from 'react-router-dom'
 import { useDispatch } from 'react-redux'
 import { login } from '../redux/LoginSlice'
+import apiHelper from '../api'
 
 function SignUpForm({className, history}) {
   const [formData, setFormData] = useState({
@@ -16,7 +17,7 @@ function SignUpForm({className, history}) {
 
   const dispatch = useDispatch()
   const handleSubmit = () => {
-    fetch(`https://easygrade-backend.herokuapp.com/admins`, {
+    fetch(`${apiHelper()}/admins`, {
         method: 'POST',
         headers: {"Content-type":"application/json"},
         body: JSON.stringify(formData)

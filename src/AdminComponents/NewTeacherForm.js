@@ -3,6 +3,7 @@ import { Form, Input, Button, Divider, Space } from 'antd'
 import { withRouter } from 'react-router-dom'
 import { useDispatch } from 'react-redux'
 import { addTeacher } from '../redux/TeacherSlice'
+import apiHelper from '../api'
 
 function SignUpForm({className, history}) {
   const [formData, setFormData] = useState({
@@ -17,7 +18,7 @@ function SignUpForm({className, history}) {
   const dispatch = useDispatch()
   
   const handleSubmit = () => {
-    fetch(`https://easygrade-backend.herokuapp.com/teachers`, {
+    fetch(`${apiHelper()}/teachers`, {
         method: 'POST',
         headers: {"Content-type":"application/json", 
         "Authorization":`Bearer ${localStorage.token}`},

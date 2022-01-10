@@ -3,6 +3,7 @@ import { Link, Redirect, withRouter } from 'react-router-dom'
 import { Form, Input, Button, Radio } from 'antd'
 import { useDispatch} from 'react-redux'
 import { login } from '../redux/LoginSlice'
+import apiHelper from '../api'
 
 function LoginForm({history}) {
 
@@ -22,7 +23,7 @@ function LoginForm({history}) {
   }
 
   const handleSubmit = () => {
-    fetch(`https://easygrade-backend.herokuapp.com/${formData.accountType}_login`, {
+    fetch(`${apiHelper()}/${formData.accountType}_login`, {
         method: 'POST',
         headers: {"Content-type":"application/json"},
         body: JSON.stringify(formData)
@@ -45,7 +46,7 @@ function LoginForm({history}) {
     <div align="center">
       {localStorage.token ? <Redirect to='/home'/> : ''}
       <h1 >Login</h1>
-      <Button><Link to='/admin_signup'>{"Click here to Register a new Admininstrator"}</Link></Button>
+      <Button><Link to='/admin_signup'>Click here to Register a new Admininstrator</Link></Button>
       <div className='login-form'>
       <Form  onFinish={handleSubmit}>
           <Form.Item label='Username'>

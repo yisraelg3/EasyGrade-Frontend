@@ -3,6 +3,7 @@ import { Form, Input, Button, Select, Space } from 'antd'
 import { withRouter } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
 import { addParent } from '../redux/ParentSlice'
+import apiHelper from '../api'
 
 function NewParentForm({className, history}) {
   const [formData, setFormData] = useState({
@@ -17,7 +18,7 @@ function NewParentForm({className, history}) {
   const token = useSelector(state => state.user.token)
 
   const handleSubmit = () => {
-    fetch(`https://easygrade-backend.herokuapp.com/parents`, {
+    fetch(`${apiHelper()}/parents`, {
         method: 'POST',
         headers: {"Content-type":"application/json", "Authorization":`Bearer ${token}`},
         body: JSON.stringify(formData)

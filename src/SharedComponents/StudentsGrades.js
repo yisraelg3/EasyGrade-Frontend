@@ -4,6 +4,7 @@ import { useSelector,useDispatch } from 'react-redux'
 import { withRouter} from 'react-router-dom'
 import { updateGradeCategoriesByStudent } from '../redux/GradeCategorySlice'
 import { DownloadOutlined, ExportOutlined } from '@ant-design/icons';
+import apiHelper from '../api'
 import jsPDF from "jspdf";
 import "jspdf-autotable";
 
@@ -109,7 +110,7 @@ function StudentsGrades({routerProps, history}) {
       //   return submitArray
       // }
       // console.log(submitData())
-      fetch('https://easygrade-backend.herokuapp.com/grade_categories/update_student_grades',{
+      fetch(`${apiHelper()}/grade_categories/update_student_grades`,{
         method: 'PATCH',
         headers: {
           "Content-type":"application/json",

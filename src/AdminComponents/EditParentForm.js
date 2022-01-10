@@ -4,6 +4,7 @@ import {useState, useEffect, useMemo} from 'react'
 import { withRouter } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
 import { updateParent } from '../redux/ParentSlice'
+import apiHelper from '../api'
 
 function EditParentForm({className, history, routerProps}) {
   const [formData, setFormData] = useState({})
@@ -27,7 +28,7 @@ function EditParentForm({className, history, routerProps}) {
   const handleSubmit = () => {
       const defaultParent = parents.find(parent => parent.username === 'parent')
       const {username, password, currentStudents} = formData
-    fetch(`https://easygrade-backend.herokuapp.com/parents/${id}`, {
+    fetch(`${apiHelper()}/parents/${id}`, {
         method: 'PATCH',
         headers: {"Content-type":"application/json", "Authorization":`Bearer ${token}`},
         body: JSON.stringify({username, password, currentStudents})

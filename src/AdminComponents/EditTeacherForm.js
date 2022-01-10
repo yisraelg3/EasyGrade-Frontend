@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import { updateTeacher } from '../redux/TeacherSlice'
 import { withRouter } from 'react-router-dom'
+import apiHelper from '../api'
 
 function EditTeacherForm({routerProps, history, setEditTeacher}) {
 
@@ -13,8 +14,8 @@ function EditTeacherForm({routerProps, history, setEditTeacher}) {
 
     const dispatch = useDispatch()
 
-    const teacher = state.teachers.find(teacher => teacher.id === parseInt(id))
-    || {username: '',
+    const teacher = state.teachers.find(teacher => teacher.id === parseInt(id)) || 
+    {username: '',
     password: '',
     picture_url: '',
     title: '',
@@ -42,7 +43,7 @@ function EditTeacherForm({routerProps, history, setEditTeacher}) {
     }           
 
     const handleSubmit = (e) => {
-        fetch(`https://easygrade-backend.herokuapp.com/teachers/${id}`, {
+        fetch(`${apiHelper()}/teachers/${id}`, {
             method: 'PATCH',
             headers: {
                 "Content-type":"application/json",
@@ -85,7 +86,7 @@ function EditTeacherForm({routerProps, history, setEditTeacher}) {
                     <Input name='picture_url' id='picture_url' value={formData.picture_url} placeholder='Picture URL' onChange={handleChange} />
                 </Form.Item> */}
                 <Form.Item style={{position:'relative', top:'99%', left: '75%'}}>
-                        <Button type="primary" htmlType='submit'>Update</Button>
+                    <Button type="primary" htmlType='submit'>Update</Button>
                 </Form.Item>
             </Form>
         </Modal>

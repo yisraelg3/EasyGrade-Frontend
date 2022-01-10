@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react'
 import { Route, Switch, withRouter } from 'react-router-dom'
-import Home from './AdminComponents/Home'
+import Home from './AdminComponents/AdminHome'
 import SignUpForm from './AdminComponents/SignUpForm'
 import SecondLevelResource from './SharedComponents/SecondLevelResource'
 import NewClassForm from './AdminComponents/NewClassForm'
@@ -18,6 +18,7 @@ import StudentsGrades from './SharedComponents/StudentsGrades'
 import ClassGrades from './SharedComponents/ClassGrades'
 import ParentTeacherHome from './SharedComponents/ParentTeacherHome'
 import NewTeacherForm from './AdminComponents/NewTeacherForm'
+import apiHelper from './api'
 
 function App(props) {
 
@@ -26,7 +27,7 @@ function App(props) {
 
   useEffect(() => {
     if (localStorage.token) {
-    fetch(`https://easygrade-backend.herokuapp.com/me`, {
+    fetch(`${apiHelper()}/me`, {
       headers: {"authorization": `"Bearer ${localStorage.token}"`}
     })
     .then(res => res.json())

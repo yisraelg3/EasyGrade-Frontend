@@ -4,6 +4,7 @@ import moment from 'moment'
 import { withRouter } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
 import {addStudent} from '../redux/StudentSlice'
+import apiHelper from '../api'
 
 function NewStudentForm({className, history}) {
 
@@ -29,7 +30,7 @@ function NewStudentForm({className, history}) {
 
     const handleSubmit = () => {
         console.log(formData)
-        fetch(`https://easygrade-backend.herokuapp.com/students`, {
+        fetch(`${apiHelper()}/students`, {
             method: 'POST',
             headers: {"Content-type":"application/json", 
             "Authorization":`Bearer ${token}`},
